@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { type User, type Transaction } from "@shared/schema";
+import RevolutCardsWidget, { CardData } from "@/components/RevolutCardsWidget";
 
 /** Currency formatter (AUD, 2dp) */
 const AUD = new Intl.NumberFormat("en-AU", {
@@ -88,6 +89,12 @@ export default function Home() {
   // Balance rendering like iOS: big whole part + tight decimals
   const balance = 2.19;
   const [whole, cents] = balance.toFixed(2).split(".");
+
+  const cards: CardData[] = [
+    { id: "original", label: "Original", secondary: "··4103", gradientKey: "original", href: "/cards/original", showAlertDot: true, showMastercard: true, ring: true },
+    { id: "disposable", label: "Disposable", secondary: "Generate", gradientKey: "disposable", showMastercard: true },
+    { id: "get-card", label: "Get card", secondary: "", gradientKey: "teal" },
+  ];
 
   return (
     <div
@@ -292,55 +299,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Cards */}
-      <section className="px-4 mt-6">
-        <div className="flex items-center justify-between text-white/80">
-          <div className="text-[15px]">Cards</div>
-          <ChevronRight className="w-4 h-4 text-white/55" />
-        </div>
-      </section>
-      <section className="px-4 mt-2">
-        <div className="rounded-[22px] bg-[#0F1224]/95 backdrop-blur-md p-4">
-          <div className="grid grid-cols-3 gap-4">
-            <Link href="/cards/original" className="block">
-              <div
-                className="relative h-24 rounded-xl p-2"
-                style={{ background: "linear-gradient(150deg,#5E4EE6 0%, #2458E7 100%)" }}
-              >
-                <div className="absolute -right-1 -top-1 w-[18px] h-[18px] rounded-full bg-yellow-400 grid place-items-center text-black text-[12px] font-bold">
-                  !
-                </div>
-                <div className="absolute bottom-2 left-2 text-[11px]">··4103</div>
-                <div className="absolute top-2 left-2 text-[12px] font-medium">R</div>
-              </div>
-              <div className="mt-2 text-center">
-                <div className="text-[13px]">Original</div>
-                <div className="text-[11px] text-white/60">··4103</div>
-              </div>
-            </Link>
-
-            <div>
-              <div
-                className="h-24 rounded-xl p-2"
-                style={{ background: "linear-gradient(150deg,#FF6EA0 0%, #E64864 100%)" }}
-              >
-                <div className="text-[12px] font-medium">R</div>
-              </div>
-              <div className="mt-2 text-center">
-                <div className="text-[13px]">Disposable</div>
-                <div className="text-[11px] text-white/60">Generate</div>
-              </div>
-            </div>
-
-            <div>
-              <div className="h-24 rounded-xl bg-white/10 grid place-items-center">
-                <Plus className="w-6 h-6" />
-              </div>
-              <div className="mt-2 text-center text-[13px]">Get card</div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <RevolutCardsWidget cards={cards} />
 
       {/* Total Wealth */}
       <section className="px-4 mt-6">
