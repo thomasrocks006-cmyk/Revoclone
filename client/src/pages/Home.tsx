@@ -90,7 +90,7 @@ export default function Home() {
   const balance = 2.19;
   const [whole, cents] = balance.toFixed(2).split(".");
 
-  // Cards configuration - matching our version 22 design exactly
+  // Cards configuration - Mobile optimized to match target screenshot
   const cards: CardData[] = [
     {
       id: "original",
@@ -98,7 +98,7 @@ export default function Home() {
       secondary: "··4103",
       gradientKey: "original",
       href: "/cards/original",
-      showAlertDot: false, // Removed the alert dot to match screenshot
+      showAlertDot: true, // Re-enabled to match the target screenshot
       showMastercard: true,
       ring: true, // Keep the orbit animation
     },
