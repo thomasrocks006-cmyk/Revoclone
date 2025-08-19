@@ -80,18 +80,18 @@ const RevolutCardsWidget: React.FC<RevolutCardsWidgetProps> = ({
         <ChevronRight className="w-4 h-4 text-white/55" />
       </div>
 
-      {/* Cards Container - matching version 22 design */}
-      <div className="rounded-[22px] bg-[#0F1224]/95 backdrop-blur-md p-6">
-        <div className="flex justify-between items-start space-x-4">
+      {/* Cards Container - Mobile optimized */}
+      <div className="rounded-[22px] bg-[#0F1224]/95 backdrop-blur-md p-4">
+        <div className="flex justify-between items-start space-x-3">
           {cards.map((card) => {
             if (card.id === "get-card") {
               return (
                 <div key={card.id} className="flex flex-col items-center flex-1">
-                  <div className="relative w-40 h-25 rounded-xl overflow-hidden mb-3 bg-gray-700 border-2 border-dashed border-gray-600 flex items-center justify-center">
-                    <div className="text-white text-3xl font-light">+</div>
+                  <div className="relative w-20 h-14 rounded-lg overflow-hidden mb-2 bg-gray-700 border border-dashed border-gray-600 flex items-center justify-center">
+                    <div className="text-white text-xl font-light">+</div>
                   </div>
                   <div className="text-center">
-                    <h3 className="text-white text-base font-medium">{card.label}</h3>
+                    <h3 className="text-white text-xs font-medium">{card.label}</h3>
                   </div>
                 </div>
               );
@@ -100,33 +100,32 @@ const RevolutCardsWidget: React.FC<RevolutCardsWidgetProps> = ({
             const CardContent = (
               <div
                 className={[
-                  "relative w-40 h-25 rounded-xl overflow-hidden mb-3 transition-shadow",
+                  "relative w-20 h-14 rounded-lg overflow-hidden mb-2 transition-shadow",
                   "shadow-[0_0_0_0_rgba(0,0,0,0)] hover:shadow-[0_4px_18px_-4px_rgba(0,0,0,0.55)]",
                   card.ring ? "card-orbit" : "",
                 ].join(" ")}
                 style={{
                   background: CARD_GRADIENTS[card.gradientKey],
-                  height: '100px', // Fixed height to match version 22
                 }}
               >
                 {/* Optional attention dot */}
                 {card.showAlertDot && (
-                  <div className="absolute -right-1 -top-1 w-[18px] h-[18px] rounded-full bg-yellow-400 grid place-items-center text-black text-[12px] font-bold">
+                  <div className="absolute -right-0.5 -top-0.5 w-3 h-3 rounded-full bg-yellow-400 grid place-items-center text-black text-[8px] font-bold">
                     !
                   </div>
                 )}
 
                 {/* Revolut R */}
-                <div className="absolute top-2 right-4">
-                  <div className="text-white text-lg font-bold opacity-80">R</div>
+                <div className="absolute top-1 right-2">
+                  <div className="text-white text-xs font-bold opacity-90">R</div>
                 </div>
 
                 {/* Mastercard logo */}
                 {card.showMastercard && (
-                  <div className="absolute bottom-3 right-4">
+                  <div className="absolute bottom-1 right-1.5">
                     <div className="flex">
-                      <div className="w-4 h-4 bg-red-600 rounded-full"></div>
-                      <div className="w-4 h-4 bg-amber-600 rounded-full -ml-1.5"></div>
+                      <div className="w-2.5 h-2.5 bg-red-600 rounded-full"></div>
+                      <div className="w-2.5 h-2.5 bg-amber-600 rounded-full -ml-1"></div>
                     </div>
                   </div>
                 )}
@@ -139,7 +138,7 @@ const RevolutCardsWidget: React.FC<RevolutCardsWidgetProps> = ({
               card.href ? (
                 <Link
                   href={card.href}
-                  className="block group focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-400 rounded-xl"
+                  className="block group focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-400 rounded-lg"
                 >
                   {children}
                 </Link>
@@ -151,9 +150,9 @@ const RevolutCardsWidget: React.FC<RevolutCardsWidgetProps> = ({
               <div key={card.id} className="flex flex-col items-center flex-1">
                 <Wrapper>{CardContent}</Wrapper>
                 <div className="text-center">
-                  <h3 className="text-white text-base font-medium mb-1">{card.label}</h3>
+                  <h3 className="text-white text-xs font-medium mb-0.5">{card.label}</h3>
                   {card.secondary && (
-                    <p className="text-gray-400 text-xs">{card.secondary}</p>
+                    <p className="text-gray-400 text-[10px]">{card.secondary}</p>
                   )}
                 </div>
               </div>
