@@ -15,6 +15,8 @@ import CryptoDetail from "@/pages/CryptoDetail";
 import CardDetail from "@/pages/CardDetail";
 import StatusBar from "@/components/StatusBar";
 import BottomNavigation from "@/components/BottomNavigation";
+import { Route as WRoute } from "wouter";
+import Agents from "@/pages/Agents";
 
 function Router() {
   return (
@@ -23,6 +25,7 @@ function Router() {
       <div className="flex-1 pb-14">
         <Switch>
           <Route path="/" component={Home} />
+          <Route path="/agents" component={Agents} />
           <Route path="/transactions" component={Transactions} />
           <Route path="/payments" component={Payments} />
           <Route path="/cards" component={Cards} />
@@ -34,7 +37,11 @@ function Router() {
           <Route component={NotFound} />
         </Switch>
       </div>
-      <BottomNavigation />
+      {/* Hide bottom nav on the Agents UI to avoid conflicts with the design */}
+      <WRoute path="/agents">{null}</WRoute>
+      <WRoute path="/:rest*">
+        <BottomNavigation />
+      </WRoute>
     </div>
   );
 }
