@@ -13,13 +13,11 @@ import Lifestyle from "@/pages/Lifestyle";
 import Payments from "@/pages/Payments";
 import CryptoDetail from "@/pages/CryptoDetail";
 import CardDetail from "@/pages/CardDetail";
-import StatusBar from "@/components/StatusBar";
 import BottomNavigation from "@/components/BottomNavigation";
 
 function Router() {
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
-      <StatusBar />
       <div className="flex-1 pb-14">
         <Switch>
           <Route path="/" component={Home} />
