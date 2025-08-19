@@ -10,6 +10,7 @@ import Cards from "@/pages/Cards";
 import Crypto from "@/pages/Crypto";
 import Invest from "@/pages/Invest";
 import Lifestyle from "@/pages/Lifestyle";
+import Payments from "@/pages/Payments";
 import CryptoDetail from "@/pages/CryptoDetail";
 import CardDetail from "@/pages/CardDetail";
 import StatusBar from "@/components/StatusBar";
@@ -23,6 +24,7 @@ function Router() {
         <Switch>
           <Route path="/" component={Home} />
           <Route path="/transactions" component={Transactions} />
+          <Route path="/payments" component={Payments} />
           <Route path="/cards" component={Cards} />
           <Route path="/cards/:cardId" component={CardDetail} />
           <Route path="/crypto" component={Crypto} />
