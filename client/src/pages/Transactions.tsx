@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { Link } from "wouter";
 import { ArrowLeft, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Transaction } from "@shared/schema";
 
 type Tx = {
   id: string;
@@ -12,6 +13,26 @@ type Tx = {
   description: string;
   secondary: string;
 };
+
+/** Build a stable unique key for a transaction */
+function txKey(t: Tx) {
+  // status and secondary can change formatting; key off the core identity
+  return `${new Date(t.date).toISOString()}|${t.merchant}|${Number(t.amount).toFixed(2)}`;
+}
+
+/** Return a new array with duplicates removed by txKey */
+function ensureUniqueTransactions(list: Tx[]) {
+  const seen = new Set();
+  const out: Tx[] = [];
+  for (const t of list) {
+    const k = txKey(t);
+    if (!seen.has(k)) {
+      seen.add(k);
+      out.push(t);
+    }
+  }
+  return out;
+}
 
 export default function Transactions() {
   const [openTx, setOpenTx] = useState<Tx | null>(null);
@@ -26,7 +47,7 @@ export default function Transactions() {
   const dateLong = (iso: string) =>
     new Date(iso).toLocaleDateString("en-GB", { day: "2-digit", month: "short" });
 
-  const transactions: Tx[] = [
+  const transactions: Tx[] = ensureUniqueTransactions([
     { id: "1", date: "2024-08-17T04:25:00", merchant: "GitHub", amount: "1.55", status: "reverted", description: "", secondary: "" },
     { id: "2", date: "2024-08-15T18:06:00", merchant: "Thomas Francis", amount: "-18", status: "", description: "Sent from Revolut", secondary: "" },
     { id: "3", date: "2024-08-15T03:39:00", merchant: "GitHub", amount: "15.46", status: "reverted", description: "", secondary: "" },
@@ -100,7 +121,57 @@ export default function Transactions() {
     { id: "71", date: "2024-07-18T04:32:00", merchant: "SumUp", amount: "-5.38", status: "", description: "", secondary: "-€3" },
     { id: "72", date: "2024-07-18T03:42:00", merchant: "McDonald's", amount: "-3.41", status: "", description: "", secondary: "-€1.90" },
     { id: "73", date: "2024-07-20T00:18:00", merchant: "yesim", amount: "-12.67", status: "", description: "", secondary: "-€7" },
-  ];
+    // New transactions from screenshots (continuing from id 73)
+    // June (screens 1–3)
+    { id: "74", date: "2024-06-06T21:20:00", merchant: "DoorDash", amount: "-30.13", status: "", description: "", secondary: "" },
+    { id: "75", date: "2024-06-06T21:19:00", merchant: "DoorDash", amount: "0", status: "card_verification", description: "Card verification", secondary: "" },
+    { id: "76", date: "2024-06-03T15:43:00", merchant: "Tinder", amount: "-9.49", status: "", description: "", secondary: "" },
+    { id: "77", date: "2024-06-03T15:42:00", merchant: "Money added via Apple Pay", amount: "41", status: "", description: "", secondary: "" },
+    // November 2023 (screen 3)
+    { id: "78", date: "2023-11-04T15:18:00", merchant: "Thomas Francis", amount: "-473", status: "", description: "Sent from Revolut", secondary: "" },
+    { id: "79", date: "2023-11-04T15:17:00", merchant: "ETH → AUD", amount: "473", status: "", description: "", secondary: "-0.17 ETH" },
+    { id: "80", date: "2023-11-04T14:35:00", merchant: "AUD → ETH", amount: "-500", status: "", description: "", secondary: "+0.17 ETH" },
+    // July 12–11 (screens 4–5)
+    { id: "81", date: "2024-07-12T09:59:00", merchant: "Transport for London", amount: "-26.58", status: "delayed_transaction", description: "Delayed transaction", secondary: "-£12.80" },
+    { id: "82", date: "2024-07-12T01:00:00", merchant: "Money added via Apple Pay", amount: "1100", status: "", description: "", secondary: "" },
+    { id: "83", date: "2024-07-11T23:02:00", merchant: "Transport for London", amount: "0", status: "card_verification", description: "Card verification", secondary: "" },
+    { id: "84", date: "2024-07-11T13:33:00", merchant: "Money added via Apple Pay", amount: "50", status: "", description: "", secondary: "" },
+    // July 16–15 (screens 6–7)
+    { id: "85", date: "2024-07-16T23:53:00", merchant: "Transport for London", amount: "0", status: "card_verification", description: "Card verification", secondary: "" },
+    { id: "86", date: "2024-07-16T23:38:00", merchant: "WHSmith", amount: "-51.49", status: "", description: "", secondary: "-£24.99" },
+    { id: "87", date: "2024-07-16T23:32:00", merchant: "South Western Railway", amount: "-81.60", status: "", description: "", secondary: "-£39.60" },
+    { id: "88", date: "2024-07-16T21:23:00", merchant: "Agoda", amount: "-113.31", status: "", description: "", secondary: "" },
+    { id: "89", date: "2024-07-16T00:35:00", merchant: "Money added via Apple Pay", amount: "90", status: "", description: "", secondary: "" },
+    { id: "90", date: "2024-07-15T20:53:00", merchant: "Fat Face Lymington", amount: "-57.95", status: "", description: "", secondary: "-£28.20" },
+    { id: "91", date: "2024-07-15T01:24:00", merchant: "Waitrose", amount: "-16.25", status: "", description: "", secondary: "-£7.90" },
+    // July 17 (screen 8)
+    { id: "92", date: "2024-07-17T23:46:00", merchant: "Bookshop Pompeii Op. La", amount: "-2.70", status: "", description: "", secondary: "-€1.50" },
+    { id: "93", date: "2024-07-17T23:18:00", merchant: "Ryanair", amount: "-6.29", status: "", description: "", secondary: "-€3.50" },
+    { id: "94", date: "2024-07-17T23:05:00", merchant: "Scavi di Pompei", amount: "-39.51", status: "", description: "", secondary: "-€22" },
+    { id: "95", date: "2024-07-17T22:24:00", merchant: "Curreri Viaggi", amount: "-23.37", status: "", description: "", secondary: "-€13" },
+    { id: "96", date: "2024-07-17T21:27:00", merchant: "yesim", amount: "-12.59", status: "", description: "", secondary: "-€7" },
+    { id: "97", date: "2024-07-17T16:06:00", merchant: "Ryanair", amount: "-113.96", status: "", description: "", secondary: "-£55" },
+    { id: "98", date: "2024-07-17T09:59:00", merchant: "Transport for London", amount: "-13.30", status: "delayed_transaction", description: "Delayed transaction", secondary: "-£6.40" },
+    { id: "99", date: "2024-07-17T00:31:00", merchant: "Pret A Manger", amount: "-6.71", status: "", description: "", secondary: "-£3.25" },
+    // July 18 (screen 9)
+    { id: "100", date: "2024-07-18T22:49:00", merchant: "Bar Buca di Bacco", amount: "-11.63", status: "", description: "", secondary: "-€6.50" },
+    { id: "101", date: "2024-07-18T22:37:00", merchant: "Navigazione Libera Del", amount: "-55.44", status: "", description: "", secondary: "-€31" },
+    { id: "102", date: "2024-07-18T21:49:00", merchant: "Tabacchi Positano", amount: "-4.84", status: "", description: "", secondary: "-€2.70" },
+    { id: "103", date: "2024-07-18T19:54:00", merchant: "SITA SUD", amount: "-8.59", status: "", description: "", secondary: "-€4.80" },
+    { id: "104", date: "2024-07-18T19:24:00", merchant: "Consortium 'Unico Campania'", amount: "-2.69", status: "", description: "", secondary: "-€1.50" },
+    // July 18 (earlier list from screen 10)
+    { id: "105", date: "2024-07-18T19:24:00", merchant: "Consortium 'Unico Campania'", amount: "-5.38", status: "", description: "", secondary: "-€3" },
+    { id: "106", date: "2024-07-18T02:12:00", merchant: "yesim", amount: "-12.53", status: "", description: "", secondary: "-€7" },
+    { id: "107", date: "2024-07-18T02:08:00", merchant: "Apple", amount: "-12.99", status: "", description: "Disposable cards can't be used for recurring payments", secondary: "" },
+    { id: "108", date: "2024-07-18T06:00:00", merchant: "Apple", amount: "-12.99", status: "", description: "Disposable cards can't be used for recurring payments", secondary: "" },
+    { id: "109", date: "2024-07-18T05:59:00", merchant: "Apple", amount: "-10", status: "", description: "Disposable cards can't be used for recurring payments", secondary: "" },
+    { id: "110", date: "2024-07-18T05:59:00", merchant: "Apple", amount: "0", status: "card_verification", description: "Card verification", secondary: "" },
+    { id: "111", date: "2024-07-18T05:07:00", merchant: "Lime", amount: "0", status: "card_verification", description: "Card verification", secondary: "" },
+    { id: "112", date: "2024-07-18T05:07:00", merchant: "Lime", amount: "-11.29", status: "", description: "", secondary: "-€6.29" },
+    { id: "113", date: "2024-07-18T05:07:00", merchant: "McDonald's", amount: "-6.27", status: "", description: "", secondary: "-€3.50" },
+    { id: "114", date: "2024-07-18T04:32:00", merchant: "SumUp", amount: "-5.38", status: "", description: "", secondary: "-€3" },
+    { id: "115", date: "2024-07-18T03:42:00", merchant: "McDonald's", amount: "-3.41", status: "", description: "", secondary: "-€1.90" },
+  ]);
 
   const sorted = useMemo(
     () => [...transactions].sort((a, b) => +new Date(b.date) - +new Date(a.date)),
@@ -217,6 +288,51 @@ export default function Transactions() {
     } else if (merchant === 'SumUp') {
       bgColor = 'bg-white';
       baseIcon = <span className="text-black font-bold text-xs">SumUp</span>;
+    } else if (merchant === 'DoorDash') {
+      bgColor = 'bg-red-600';
+      baseIcon = <span className="text-white font-bold text-xl">D</span>;
+    } else if (merchant === 'Tinder') {
+      bgColor = 'bg-pink-500';
+      baseIcon = <span className="text-white font-bold text-xl">🔥</span>;
+    } else if (merchant === 'Transport for London') {
+      bgColor = 'bg-blue-600';
+      baseIcon = <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="currentColor"><path d="M4 16h16l-2 4H6l-2-4Zm1-9h14v7H5V7Zm3-4h8l1 3H7l1-3Z"/></svg>;
+    } else if (merchant === 'WHSmith') {
+      bgColor = 'bg-white';
+      baseIcon = <span className="text-blue-600 font-bold text-xs">WH</span>;
+    } else if (merchant === 'South Western Railway') {
+      bgColor = 'bg-white';
+      baseIcon = <span className="text-black font-bold text-xs">SWR</span>;
+    } else if (merchant === 'Agoda') {
+      bgColor = 'bg-white';
+      baseIcon = <span className="text-black font-bold text-xs">agoda</span>;
+    } else if (merchant === 'Bookshop Pompeii Op. La') {
+      bgColor = 'bg-red-600';
+      baseIcon = <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="currentColor"><path d="M4 6h16l-1 10H5L4 6ZM6 8v6h12V8H6Z"/></svg>;
+    } else if (merchant === 'Ryanair') {
+      bgColor = 'bg-indigo-600';
+      baseIcon = <span className="text-yellow-400 font-bold text-xl">R</span>;
+    } else if (merchant === 'Scavi di Pompei') {
+      bgColor = 'bg-white';
+      baseIcon = <span className="text-black font-bold text-xs">Pompei</span>;
+    } else if (merchant === 'Curreri Viaggi') {
+      bgColor = 'bg-purple-600';
+      baseIcon = <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="currentColor"><path d="M3 16h18v2H3v-2Zm2-9h14l1 7H4l1-7Z"/></svg>;
+    } else if (merchant === 'Pret A Manger') {
+      bgColor = 'bg-white';
+      baseIcon = <span className="text-black font-bold text-xs">Pret</span>;
+    } else if (merchant === 'Fat Face Lymington') {
+      bgColor = 'bg-pink-500';
+      baseIcon = <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="currentColor"><path d="M6 2l12 0 2 18-8-6-8 6z"/></svg>;
+    } else if (merchant === 'Waitrose') {
+      bgColor = 'bg-white';
+      baseIcon = <span className="text-green-600 font-bold text-xs">Waitrose</span>;
+    } else if (merchant === 'ETH → AUD' || merchant === 'AUD → ETH') {
+      bgColor = 'bg-gray-800';
+      baseIcon = <span className="text-white font-bold text-xs">⚡</span>;
+    } else if (merchant === 'Apple') {
+      bgColor = 'bg-black';
+      baseIcon = <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>;
     } else {
       bgColor = 'bg-gray-800';
       baseIcon = <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="6" width="16" height="12" rx="2"/></svg>;
