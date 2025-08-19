@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "wouter";
 import { ArrowLeft, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,18 @@ type Tx = {
 };
 
 export default function Transactions() {
+  const [openTx, setOpenTx] = useState<Tx | null>(null);
+
+  // small helpers
+  const fmtAmt = (n: number) => {
+    const sign = n > 0 ? "+" : n < 0 ? "-" : "";
+    return `${sign}$${Math.abs(n).toFixed(2)}`;
+  };
+  const time24 = (iso: string) =>
+    new Date(iso).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false });
+  const dateLong = (iso: string) =>
+    new Date(iso).toLocaleDateString("en-GB", { day: "2-digit", month: "short" });
+
   const transactions: Tx[] = [
     { id: "1", date: "2024-08-17T04:25:00", merchant: "GitHub", amount: "1.55", status: "reverted", description: "", secondary: "" },
     { id: "2", date: "2024-08-15T18:06:00", merchant: "Thomas Francis", amount: "-18", status: "", description: "Sent from Revolut", secondary: "" },
@@ -281,7 +293,13 @@ export default function Transactions() {
                     if (t.status === "card_verification") subs.push("Card verification");
 
                     return (
-                      <div key={t.id} className="flex items-center">
+                      <div
+                        key={t.id}
+                        className="flex items-center rounded-xl hover:bg-white/5 active:bg-white/10 transition"
+                        onClick={() => setOpenTx(t)}
+                        role="button"
+                        aria-label={`Open details for ${t.merchant}`}
+                      >
                         <div className="mr-3">{getIcon(t)}</div>
 
                         <div className="flex-1 min-w-0">
@@ -310,9 +328,273 @@ export default function Transactions() {
         </div>
       </div>
 
+      {openTx && (
+        <TransactionSheet tx={openTx} onClose={() => setOpenTx(null)} />
+      )}
+
       <div className="fixed bottom-6 left-1/2 -translate-x-1/2">
         <div className="w-32 h-1 bg-white/50 rounded-full"></div>
       </div>
     </div>
+  );
+}
+
+function TransactionSheet({
+  tx,
+  onClose,
+}: {
+  tx: any; // Transaction shape you use
+  onClose: () => void;
+}) {
+  if (!tx) return null;
+
+  const amount = parseFloat(tx.amount || "0");
+  const isNeg = amount < 0;
+  const amountText = `${isNeg ? "-" : "+"}$${Math.abs(amount).toFixed(2)}`;
+
+  const time24 = (iso: string) =>
+    new Date(iso).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false });
+  const dateLong = (iso: string) =>
+    new Date(iso).toLocaleDateString("en-GB", { day: "2-digit", month: "short" });
+
+  return (
+    <div
+      className="fixed inset-0 z-50"
+      aria-modal="true"
+      role="dialog"
+      onClick={onClose}
+    >
+      {/* backdrop */}
+      <div className="absolute inset-0 bg-black/60" />
+      {/* sheet */}
+      <div
+        className="absolute left-0 right-0 bottom-0"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div
+          className="mx-auto w-full max-w-[430px] rounded-t-3xl bg-[#111316] text-white"
+          style={{ boxShadow: "0 -10px 40px rgba(0,0,0,.5)" }}
+        >
+          {/* grabber */}
+          <div className="pt-2 pb-1 flex justify-center">
+            <div className="w-12 h-1.5 rounded-full bg-white/20" />
+          </div>
+
+          {/* header row */}
+          <div className="px-4 pt-3 pb-2 relative">
+            <button
+              onClick={onClose}
+              className="absolute left-3 top-3 w-10 h-10 grid place-items-center rounded-full text-white/80 hover:bg-white/10"
+              aria-label="Close"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24">
+                <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              </svg>
+            </button>
+
+            {/* merchant avatar (top-right) */}
+            <div className="absolute right-4 top-4 w-10 h-10 rounded-full bg-[#B71C1C] grid place-items-center">
+              {/* demo McD logo circle; replace via mapping if desired */}
+              <span className="text-yellow-300 font-extrabold text-xl leading-none">M</span>
+            </div>
+
+            {/* amount */}
+            <div
+              className="text-[34px] font-extrabold leading-none pr-16"
+              style={{ fontVariantNumeric: "tabular-nums" }}
+            >
+              {amountText}
+            </div>
+
+            {/* merchant (blue) */}
+            <div className="mt-2">
+              <span className="text-[#60A5FA] text-[18px]">{tx.merchant}</span>
+            </div>
+
+            {/* date/time */}
+            <div className="text-white/60 mt-1">
+              {dateLong(tx.date)}, {time24(tx.date)}
+            </div>
+
+            {/* Split bill */}
+            <button
+              className="mt-3 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 h-10"
+              aria-label="Split bill"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" className="text-white/80">
+                <path d="M4 12h16M12 4v16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              </svg>
+              <span>Split bill</span>
+            </button>
+          </div>
+
+          {/* map placeholder */}
+          <div className="px-4">
+            <div className="rounded-2xl overflow-hidden bg-[#24324A] h-36 grid place-items-center">
+              <span className="text-white/60">Map preview</span>
+            </div>
+          </div>
+
+          {/* location card */}
+          <div className="px-4 mt-3">
+            <button className="w-full rounded-2xl bg-white/5 px-4 py-4 text-left flex items-center justify-between">
+              <div>Mascot NSW 2020, Australia</div>
+              <svg width="18" height="18" viewBox="0 0 24 24" className="text-white/60">
+                <path d="M9 6l6 6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" fill="none" />
+              </svg>
+            </button>
+          </div>
+
+          {/* info blocks */}
+          <div className="px-4 mt-4 space-y-3 pb-8">
+            <Block>
+              <Row label="Status" value="Completed" />
+              <Row label="Card" value="Mastercard ··4103" valueClass="text-[#60A5FA]" icon="card" />
+              <Row label="Statement" value="Download" valueClass="text-[#60A5FA]" icon="download" />
+            </Block>
+
+            <Block>
+              <Row
+                label="Exclude from analytics"
+                customRight={<Toggle />}
+              />
+              <Row
+                label="Category"
+                value="Restaurants"
+                valueClass="text-[#60A5FA]"
+                icon="fork"
+              />
+              <Row
+                label="Adjust for analytics"
+                value="$2.50"
+                valueClass="text-[#60A5FA]"
+                icon="bars"
+              />
+            </Block>
+
+            <Block>
+              <Row label={`Spent at ${tx.merchant}`} value="$80.26" />
+              <Row label="Number of transactions" value="9" />
+              <Row label="See all" chevron />
+            </Block>
+
+            <Block>
+              <Row label="Receipt" value="Upload" valueClass="text-[#60A5FA]" icon="camera" />
+            </Block>
+
+            <Block>
+              <Row label="Note" value="Add note" valueClass="text-[#60A5FA]" icon="plus" />
+            </Block>
+
+            <Block>
+              <Row label="Get help" chevron />
+            </Block>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Block({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="rounded-2xl bg-white/5 px-4 py-3 space-y-3">
+      {children}
+    </div>
+  );
+}
+
+function Row({
+  label,
+  value,
+  valueClass,
+  chevron,
+  icon,
+  customRight,
+}: {
+  label: string;
+  value?: string;
+  valueClass?: string;
+  chevron?: boolean;
+  icon?: "card" | "download" | "fork" | "bars" | "camera" | "plus";
+  customRight?: React.ReactNode;
+}) {
+  return (
+    <div className="flex items-center justify-between">
+      <div className="flex items-center gap-3">
+        {icon && <RowIcon kind={icon} />}
+        <div className="text-white/80">{label}</div>
+      </div>
+      {customRight ? (
+        customRight
+      ) : (
+        <div className="flex items-center gap-2">
+          {value && <div className={`text-white ${valueClass ?? ""}`}>{value}</div>}
+          {chevron && (
+            <svg width="18" height="18" viewBox="0 0 24 24" className="text-white/60">
+              <path d="M9 6l6 6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" fill="none" />
+            </svg>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function RowIcon({ kind }: { kind: string }) {
+  const paths: Record<string, React.ReactNode> = {
+    card: <rect x="3" y="6" width="18" height="12" rx="2" />,
+    download: (
+      <>
+        <path d="M12 3v10" />
+        <path d="M8 9l4 4 4-4" />
+        <path d="M5 21h14" />
+      </>
+    ),
+    fork: (
+      <>
+        <path d="M7 8v8" />
+        <circle cx="7" cy="5" r="2" />
+        <circle cx="7" cy="19" r="2" />
+        <path d="M7 12h6a4 4 0 0 0 4-4V5" />
+      </>
+    ),
+    bars: (
+      <>
+        <rect x="4" y="6" width="16" height="2" rx="1" />
+        <rect x="4" y="11" width="16" height="2" rx="1" />
+        <rect x="4" y="16" width="16" height="2" rx="1" />
+      </>
+    ),
+    camera: (
+      <>
+        <rect x="5" y="7" width="14" height="10" rx="2" />
+        <circle cx="12" cy="12" r="3" />
+      </>
+    ),
+    plus: (
+      <>
+        <path d="M12 5v14" />
+        <path d="M5 12h14" />
+      </>
+    ),
+  };
+
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" className="text-white/60" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      {paths[kind] ?? null}
+    </svg>
+  );
+}
+
+function Toggle() {
+  return (
+    <button
+      type="button"
+      className="relative inline-flex h-7 w-12 items-center rounded-full bg-white/20"
+      onClick={(e) => e.preventDefault()}
+    >
+      <span className="inline-block h-6 w-6 transform rounded-full bg-white translate-x-1 transition-transform will-change-transform" />
+    </button>
   );
 }
