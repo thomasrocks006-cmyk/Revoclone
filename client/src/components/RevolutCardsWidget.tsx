@@ -75,10 +75,10 @@ const RevolutCardsWidget: React.FC<RevolutCardsWidgetProps> = ({
   return (
     <section className={`px-4 mt-6 ${className}`}>
       {/* Header */}
-      <Link href="/transactions" className="flex items-center justify-between text-white/80 mb-2 hover:text-white/90 transition-colors cursor-pointer">
+      <div className="flex items-center justify-between text-white/80 mb-2">
         <div className="text-[15px]">Cards</div>
         <ChevronRight className="w-4 h-4 text-white/55" />
-      </Link>
+      </div>
 
       {/* Cards Container - Mobile optimized */}
       <div className="rounded-[22px] bg-[#0F1224]/95 backdrop-blur-md p-4">
