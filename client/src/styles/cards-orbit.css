@@ -16,7 +16,7 @@
 .card-orbit::before {
   content: "";
   position: absolute;
-  inset: -3px; /* Slightly larger ring for better visibility */
+  inset: -1.5px; /* Smaller ring for mobile cards */
   border-radius: inherit;
   background: conic-gradient(
     from 0deg,
@@ -26,12 +26,12 @@
     #ffb347
   );
   /* Create hollow center (ring) via mask */
-  -webkit-mask: radial-gradient(circle at 50% 50%, transparent 58%, black 60%);
-  mask: radial-gradient(circle at 50% 50%, transparent 58%, black 60%);
-  filter: blur(0.5px);
+  -webkit-mask: radial-gradient(circle at 50% 50%, transparent 60%, black 62%);
+  mask: radial-gradient(circle at 50% 50%, transparent 60%, black 62%);
+  filter: blur(0.3px); /* Reduced blur for smaller cards */
   animation: orbit-spin 6s linear infinite;
   z-index: -1; /* Behind the card */
-  opacity: 0.9;
+  opacity: 0.8;
   pointer-events: none;
 }
 
@@ -42,7 +42,7 @@
   inset: 0;
   border-radius: inherit;
   background: 
-    radial-gradient(circle at 30% 25%, rgba(255,138,0,0.25), transparent 65%),
+    radial-gradient(circle at 30% 25%, rgba(255,138,0,0.2), transparent 65%),
     radial-gradient(circle at 70% 75%, rgba(255,200,80,0.15), transparent 70%);
   z-index: -1; /* Behind the card */
   pointer-events: none;
@@ -61,11 +61,11 @@
   }
 }
 
-/* Additional styles to ensure proper card dimensions */
-.h-25 {
-  height: 100px;
+/* Mobile-optimized card dimensions */
+.h-14 {
+  height: 56px;
 }
 
-.w-40 {
-  width: 160px;
+.w-20 {
+  width: 80px;
 }
