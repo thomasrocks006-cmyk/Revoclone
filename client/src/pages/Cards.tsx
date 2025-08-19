@@ -54,25 +54,26 @@ export default function Cards() {
             };
 
             return (
-              <div 
-                key={card.id} 
-                className="bg-white bg-opacity-10 backdrop-blur-sm rounded-2xl p-4 border border-white border-opacity-20"
-                data-testid={`card-${card.type}`}
-              >
-                <div className="flex items-center gap-3">
-                  <div className="relative">
-                    {getCardIcon(card.type)}
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="text-white font-medium text-lg" data-testid={`text-card-name-${card.type}`}>
-                      {card.name}
-                    </h3>
-                    <p className="text-white text-opacity-70 text-sm" data-testid={`text-card-description-${card.type}`}>
-                      {card.description}
-                    </p>
+              <Link key={card.id} href={`/cards/${card.type}`}>
+                <div 
+                  className="bg-white bg-opacity-10 backdrop-blur-sm rounded-2xl p-4 border border-white border-opacity-20 cursor-pointer hover:bg-opacity-20 transition-all"
+                  data-testid={`card-${card.type}`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="relative">
+                      {getCardIcon(card.type)}
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-white font-medium text-lg" data-testid={`text-card-name-${card.type}`}>
+                        {card.name}
+                      </h3>
+                      <p className="text-white text-opacity-70 text-sm" data-testid={`text-card-description-${card.type}`}>
+                        {card.description}
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </Link>
             );
           })
         ) : (

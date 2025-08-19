@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Search, BarChart3, Menu } from "lucide-react";
+import { Link } from "wouter";
 import MerchantIcon from "@/components/MerchantIcon";
 import { type User, type CryptoAsset } from "@shared/schema";
 
@@ -79,31 +80,33 @@ export default function Crypto() {
 
         {/* ETH Card */}
         {eth && (
-          <div className="crypto-card" data-testid="card-eth">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
-                <span className="text-white text-xs font-bold">Ξ</span>
+          <Link href={`/crypto/ETH`}>
+            <div className="crypto-card cursor-pointer" data-testid="card-eth">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                  <span className="text-white text-xs font-bold">Ξ</span>
+                </div>
+                <span className="text-gray-400 text-sm">ETH</span>
               </div>
-              <span className="text-gray-400 text-sm">ETH</span>
+              <div className="mb-3">
+                <p className="text-white text-xl font-semibold" data-testid="text-eth-price">
+                  ${parseFloat(eth.price).toLocaleString()}
+                </p>
+                <p className="text-red-400 text-sm" data-testid="text-eth-change">
+                  ▼ {Math.abs(parseFloat(eth.change24h))}%
+                </p>
+              </div>
+              <div className="h-12">
+                <svg width="100%" height="100%" className="overflow-visible">
+                  <polyline
+                    points={generateMiniChart(false)}
+                    className="chart-negative"
+                    strokeWidth="2"
+                  />
+                </svg>
+              </div>
             </div>
-            <div className="mb-3">
-              <p className="text-white text-xl font-semibold" data-testid="text-eth-price">
-                ${parseFloat(eth.price).toLocaleString()}
-              </p>
-              <p className="text-red-400 text-sm" data-testid="text-eth-change">
-                ▼ {Math.abs(parseFloat(eth.change24h))}%
-              </p>
-            </div>
-            <div className="h-12">
-              <svg width="100%" height="100%" className="overflow-visible">
-                <polyline
-                  points={generateMiniChart(false)}
-                  className="chart-negative"
-                  strokeWidth="2"
-                />
-              </svg>
-            </div>
-          </div>
+          </Link>
         )}
       </div>
 

@@ -10,6 +10,8 @@ import Cards from "@/pages/Cards";
 import Crypto from "@/pages/Crypto";
 import Invest from "@/pages/Invest";
 import Lifestyle from "@/pages/Lifestyle";
+import CryptoDetail from "@/pages/CryptoDetail";
+import CardDetail from "@/pages/CardDetail";
 import StatusBar from "@/components/StatusBar";
 import BottomNavigation from "@/components/BottomNavigation";
 
@@ -22,7 +24,9 @@ function Router() {
           <Route path="/" component={Home} />
           <Route path="/transactions" component={Transactions} />
           <Route path="/cards" component={Cards} />
+          <Route path="/cards/:cardId" component={CardDetail} />
           <Route path="/crypto" component={Crypto} />
+          <Route path="/crypto/:symbol" component={CryptoDetail} />
           <Route path="/invest" component={Invest} />
           <Route path="/lifestyle" component={Lifestyle} />
           <Route component={NotFound} />
