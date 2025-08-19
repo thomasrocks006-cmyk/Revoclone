@@ -1,12 +1,20 @@
 import { useMemo } from "react";
 import { Link } from "wouter";
-import { ArrowLeft, Search, Github, Plus, X, Utensils, Bus, Plane, Train, ShoppingBag, Heart, CreditCard, Apple as AppleIcon } from "lucide-react";
+import { ArrowLeft, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { type Transaction } from "@shared/schema";
+
+type Tx = {
+  id: string;
+  date: string;
+  merchant: string;
+  amount: string;
+  status: string;
+  description: string;
+  secondary: string;
+};
 
 export default function Transactions() {
-  const transactions: Transaction[] = [
-    // August transactions
+  const transactions: Tx[] = [
     { id: "1", date: "2024-08-17T04:25:00", merchant: "GitHub", amount: "1.55", status: "reverted", description: "", secondary: "" },
     { id: "2", date: "2024-08-15T18:06:00", merchant: "Thomas Francis", amount: "-18", status: "", description: "Sent from Revolut", secondary: "" },
     { id: "3", date: "2024-08-15T03:39:00", merchant: "GitHub", amount: "15.46", status: "reverted", description: "", secondary: "" },
@@ -14,7 +22,6 @@ export default function Transactions() {
     { id: "5", date: "2024-08-15T03:24:00", merchant: "GitHub", amount: "0", status: "card_verification", description: "Card verification", secondary: "" },
     { id: "6", date: "2024-08-15T03:23:00", merchant: "Money added via Apple Pay", amount: "25", status: "", description: "", secondary: "" },
     { id: "7", date: "2024-08-15T02:04:00", merchant: "GitHub", amount: "15.46", status: "insufficient_balance", description: "Insufficient balance", secondary: "" },
-    // July transactions
     { id: "8", date: "2024-07-29T07:20:00", merchant: "McDonald's", amount: "-2.50", status: "", description: "", secondary: "" },
     { id: "9", date: "2024-07-27T23:38:00", merchant: "Pharmacie du Voyage Roissy 1", amount: "-3.63", status: "", description: "", secondary: "-€2" },
     { id: "10", date: "2024-07-27T17:10:00", merchant: "Marché Franprix", amount: "-0.91", status: "", description: "", secondary: "-€0.50" },
@@ -81,41 +88,51 @@ export default function Transactions() {
     { id: "71", date: "2024-07-18T04:32:00", merchant: "SumUp", amount: "-5.38", status: "", description: "", secondary: "-€3" },
     { id: "72", date: "2024-07-18T03:42:00", merchant: "McDonald's", amount: "-3.41", status: "", description: "", secondary: "-€1.90" },
     { id: "73", date: "2024-07-20T00:18:00", merchant: "yesim", amount: "-12.67", status: "", description: "", secondary: "-€7" },
-    // Add any missed unique ones if there are duplicates or overlaps, but this covers all from screenshots
   ];
-  const isLoading = false;
-  const sortedTransactions = useMemo(() => transactions.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()), [transactions]);
-  const groupTransactionsByDate = (transactions: Transaction[]) => {
-    const groups: { [key: string]: Transaction[] } = {};
-    transactions.forEach(transaction => {
-      const date = new Date(transaction.date).toLocaleDateString('en-AU', {
-        day: 'numeric',
-        month: 'long'
-      });
-      if (!groups[date]) {
-        groups[date] = [];
-      }
-      groups[date].push(transaction);
-    });
-    return groups;
-  };
-  const groupedTransactions = groupTransactionsByDate(sortedTransactions);
-  const getIcon = (transaction: Transaction) => {
+
+  const sorted = useMemo(
+    () => [...transactions].sort((a, b) => +new Date(b.date) - +new Date(a.date)),
+    [transactions]
+  );
+
+  const groups = useMemo(() => {
+    const map = new Map<string, Tx[]>();
+    for (const t of sorted) {
+      const d = new Date(t.date);
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
+        d.getDate()
+      ).padStart(2, "0")}`;
+      if (!map.has(key)) map.set(key, []);
+      map.get(key)!.push(t);
+    }
+    return Array.from(map.entries())
+      .sort((a, b) => (a[0] > b[0] ? -1 : 1))
+      .map(([key, items]) => ({
+        key,
+        label: new Date(items[0].date).toLocaleDateString("en-GB", { day: "2-digit", month: "long" }),
+        items,
+        total: items.reduce((sum, t) => sum + parseFloat(t.amount), 0),
+      }));
+  }, [sorted]);
+
+  const getIcon = (transaction: Tx) => {
     const { merchant, status } = transaction;
     let baseIcon;
     let bgColor = 'bg-gray-800';
-    let additional = null;
     if (merchant === 'Money added via Apple Pay') {
       bgColor = 'bg-black';
       baseIcon = <span className="text-white text-xl"></span>;
-      additional = (
-        <div className="absolute -bottom-1 -right-1 bg-white rounded-full w-4 h-4 flex items-center justify-center">
-          <Plus className="w-3 h-3 text-black" />
+      return (
+        <div className={`relative w-10 h-10 ${bgColor} rounded-full flex items-center justify-center`}>
+          {baseIcon}
+          <div className="absolute -bottom-1 -right-1 bg-white rounded-full w-4 h-4 flex items-center justify-center">
+            <svg width="12" height="12" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke="black" strokeWidth="2" strokeLinecap="round"/></svg>
+          </div>
         </div>
       );
     } else if (merchant === 'GitHub') {
       bgColor = 'bg-black';
-      baseIcon = <Github className="w-6 h-6 text-white" />;
+      baseIcon = <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5a12 12 0 0 0-3.79 23.39c.6.11.82-.26.82-.57v-2c-3.34.73-4.04-1.61-4.04-1.61-.55-1.4-1.35-1.78-1.35-1.78-1.1-.76.08-.75.08-.75 1.22.09 1.86 1.25 1.86 1.25 1.08 1.85 2.84 1.31 3.53 1 .11-.79.42-1.31.76-1.61-2.67-.3-5.47-1.34-5.47-5.94 0-1.31.47-2.38 1.25-3.22-.12-.3-.54-1.52.12-3.16 0 0 1.01-.32 3.3 1.23a11.49 11.49 0 0 1 6 0c2.29-1.55 3.3-1.23 3.3-1.23.66 1.64.24 2.86.12 3.16.78.84 1.25 1.92 1.25 3.22 0 4.61-2.8 5.64-5.47 5.94.43.37.81 1.1.81 2.22v3.29c0 .31.22.68.82.57A12 12 0 0 0 12 .5Z"/></svg>;
     } else if (merchant === 'Thomas Francis') {
       bgColor = 'bg-orange-500';
       baseIcon = <span className="text-white font-bold text-sm">TF →</span>;
@@ -128,27 +145,39 @@ export default function Transactions() {
     } else if (merchant === 'Lime') {
       bgColor = 'bg-green-600';
       baseIcon = <span className="text-white font-bold text-xl">L</span>;
-    } else if (merchant.toLowerCase().includes('food') || merchant.toLowerCase().includes('burger') || merchant.toLowerCase().includes('coffee') || merchant.toLowerCase().includes('bar') || merchant.toLowerCase().includes('jay') || merchant.toLowerCase().includes('chope') || merchant.toLowerCase().includes('moer') || merchant.toLowerCase().includes('milly') || merchant.toLowerCase().includes('caffe') || merchant.toLowerCase().includes('meet') || merchant.toLowerCase().includes('boulevard')) {
+    } else if (
+      merchant.toLowerCase().includes('food') ||
+      merchant.toLowerCase().includes('burger') ||
+      merchant.toLowerCase().includes('coffee') ||
+      merchant.toLowerCase().includes('bar') ||
+      merchant.toLowerCase().includes('jay') ||
+      merchant.toLowerCase().includes('chope') ||
+      merchant.toLowerCase().includes('moer') ||
+      merchant.toLowerCase().includes('milly') ||
+      merchant.toLowerCase().includes('caffe') ||
+      merchant.toLowerCase().includes('meet') ||
+      merchant.toLowerCase().includes('boulevard')
+    ) {
       bgColor = 'bg-orange-500';
-      baseIcon = <Utensils className="w-6 h-6 text-white" />;
+      baseIcon = <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="currentColor"><path d="M6 7h12l-1 10H7L6 7Zm2-4h8l1 3H7l1-3Z"/></svg>;
     } else if (merchant === 'Zaptrvl') {
       bgColor = 'bg-blue-500';
-      baseIcon = <Plane className="w-6 h-6 text-white" />;
+      baseIcon = <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="currentColor"><path d="M2 12l20-8-8 20-2-8-8-4Z"/></svg>;
     } else if (merchant === 'Trainline') {
       bgColor = 'bg-green-600';
-      baseIcon = <Heart className="w-6 h-6 text-white" />;
+      baseIcon = <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="currentColor"><path d="M4 16h16l-2 4H6l-2-4Zm1-9h14v7H5V7Zm3-4h8l1 3H7l1-3Z"/></svg>;
     } else if (merchant === 'SNCF') {
       bgColor = 'bg-gradient-to-r from-purple-500 to-red-500';
-      baseIcon = <Train className="w-6 h-6 text-white" />;
+      baseIcon = <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="8"/></svg>;
     } else if (merchant === 'SITA SUD' || merchant === 'Navigazione Libera Del' || merchant === 'Consortaxi' || merchant === 'ARST') {
       bgColor = 'bg-purple-500';
-      baseIcon = <Bus className="w-6 h-6 text-white" />;
+      baseIcon = <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="currentColor"><path d="M3 16h18v2H3v-2Zm2-9h14l1 7H4l1-7Z"/></svg>;
     } else if (merchant === 'Tabacchi Positano' || merchant === 'Olvadis' || merchant === 'Rtf') {
       bgColor = 'bg-pink-500';
-      baseIcon = <ShoppingBag className="w-6 h-6 text-white" />;
+      baseIcon = <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="currentColor"><path d="M6 7h12v10H6z"/></svg>;
     } else if (merchant === 'Pains De Provence' || merchant === 'Kosalite' || merchant === 'Pharmacie du Voyage Roissy 1' || merchant === 'Marché Franprix') {
       bgColor = 'bg-green-500';
-      baseIcon = <ShoppingBag className="w-6 h-6 text-white" />;
+      baseIcon = <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="6"/></svg>;
     } else if (merchant === 'yesim') {
       bgColor = 'bg-white';
       baseIcon = <span className="text-orange-500 font-bold text-xs">yesim</span>;
@@ -167,7 +196,7 @@ export default function Transactions() {
     } else if (merchant === 'Omio') {
       bgColor = 'bg-white';
       baseIcon = <span className="text-blue-500 font-bold text-sm">Omio</span>;
-    } else if (merchant === 'Consortium \'Unico Campania\'') {
+    } else if (merchant === "Consortium 'Unico Campania'") {
       bgColor = 'bg-white';
       baseIcon = <span className="text-blue-500 font-bold text-xs">Unico</span>;
     } else if (merchant === 'Alimentation General') {
@@ -178,137 +207,110 @@ export default function Transactions() {
       baseIcon = <span className="text-black font-bold text-xs">SumUp</span>;
     } else {
       bgColor = 'bg-gray-800';
-      baseIcon = <CreditCard className="w-6 h-6 text-white" />;
+      baseIcon = <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="6" width="16" height="12" rx="2"/></svg>;
     }
     if (status === 'insufficient_balance') {
-      additional = (
-        <div className="absolute -bottom-1 -right-1 bg-red-500 rounded-full w-4 h-4 flex items-center justify-center">
-          <X className="w-3 h-3 text-white" />
+      return (
+        <div className={`relative w-10 h-10 ${bgColor} rounded-full flex items-center justify-center`}>
+          {baseIcon}
+          <div className="absolute -bottom-1 -right-1 bg-red-500 rounded-full w-4 h-4 flex items-center justify-center">
+            <svg width="10" height="10" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke="white" strokeWidth="2" strokeLinecap="round"/></svg>
+          </div>
         </div>
       );
     }
     return (
       <div className={`relative w-10 h-10 ${bgColor} rounded-full flex items-center justify-center`}>
         {baseIcon}
-        {additional}
       </div>
     );
   };
+
   return (
-    <div className="min-h-screen bg-black text-white" data-testid="transactions-screen">
-      {/* Status Bar */}
-      <div className="flex justify-between items-center px-4 py-2 text-white text-sm font-medium">
-        <span>21:33 🌙</span>
-        <div className="flex items-center gap-1">
-          <div className="flex gap-0.5">
-            <div className="w-0.5 h-2 bg-white rounded-full"></div>
-            <div className="w-0.5 h-3 bg-white rounded-full"></div>
-            <div className="w-0.5 h-4 bg-white rounded-full"></div>
-          </div>
-          <span className="ml-1">📶</span>
-          <span>35%</span>
-        </div>
-      </div>
-      {/* Header */}
-      <div className="px-4 py-4">
-        <div className="flex items-center gap-4 mb-6">
+    <div className="min-h-screen bg-[#000] text-white" data-testid="transactions-screen">
+      <div className="w-full max-w-[390px] mx-auto px-[18px] pb-24" style={{ paddingTop: "max(env(safe-area-inset-top), 10px)" }}>
+        <div className="flex items-center gap-3">
           <Link href="/">
-            <Button variant="ghost" size="icon" className="w-10 h-10 text-white">
+            <Button variant="ghost" size="icon" className="w-10 h-10 text-white -ml-2">
               <ArrowLeft className="w-6 h-6" />
             </Button>
           </Link>
-          <h1 className="text-white text-2xl font-medium">Transactions</h1>
+          <div className="flex-1 text-center text-2xl font-bold -ml-8">Transactions</div>
+          <div className="w-10" />
         </div>
-        {/* Search Bar */}
-        <div className="bg-gray-800 rounded-full px-4 py-3 flex items-center mb-6">
-          <Search className="w-5 h-5 text-gray-400 mr-3" />
-          <span className="text-gray-400">Search</span>
+
+        <div className="mt-3">
+          <div className="h-10 rounded-full px-4 flex items-center" style={{ background: "#2A313C", boxShadow: "inset 0 1px 0 rgba(255,255,255,.06)" }}>
+            <Search className="w-5 h-5 text-[#9AA3B2] mr-3" />
+            <span className="text-[#9AA3B2]">Search</span>
+          </div>
         </div>
-        {/* Month Tabs */}
-        <div className="flex gap-3 mb-6 text-sm">
-          <span className="text-gray-400">November 2023</span>
-          <span className="text-gray-400">June</span>
-          <span className="bg-gray-800 rounded-full px-4 py-1 text-white">July</span>
-          <span className="text-gray-400">August</span>
+
+        <div className="mt-3 flex items-center justify-center gap-8 text-[15px]">
+          <span className="text-[#9AA3B2]">November 2023</span>
+          <span className="text-[#9AA3B2]">June</span>
+          <span className="px-4 h-8 rounded-full grid place-items-center" style={{ background: "#232730" }}>July</span>
+          <span className="text-[#9AA3B2]">August</span>
         </div>
-      </div>
-      {/* Transactions List */}
-      <div className="px-4">
-        {isLoading ? (
-          <div className="text-gray-400 text-center py-8">Loading transactions...</div>
-        ) : Object.keys(groupedTransactions).length > 0 ? (
-          <div className="space-y-6">
-            {Object.entries(groupedTransactions).map(([date, dayTransactions]) => {
-              const dailyTotal = dayTransactions.reduce((sum, t) => sum + parseFloat(t.amount), 0);
-              const dailyColor = dailyTotal > 0 ? 'green' : dailyTotal < 0 ? 'red' : 'gray';
-              const dailyText = dailyTotal > 0 ? `+$${dailyTotal.toFixed(2)}` : dailyTotal < 0 ? `-$${Math.abs(dailyTotal).toFixed(2)}` : '$0';
-              return (
-                <div key={date} className="space-y-3">
-                  {/* Date Header with Daily Total */}
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-white font-medium">{date}</h3>
-                    <div className={`text-${dailyColor}-400 text-sm`}>
-                      {dailyText}
-                    </div>
-                  </div>
-                  {/* Day's Transactions */}
-                  <div className="space-y-3">
-                    {dayTransactions.map((transaction) => {
-                      const amount = parseFloat(transaction.amount);
-                      let displayAmount = '';
-                      let amountColor = amount >= 0 ? 'green' : 'white';
-                      let amountText = amount >= 0 ? `+$${amount.toFixed(2)}` : `-${Math.abs(amount).toFixed(2)}`;
-                      if (transaction.status === 'reverted' || transaction.status === 'insufficient_balance') {
-                        amountColor = 'white';
-                        amountText = `$${Math.abs(amount).toFixed(2)}`;
-                      }
-                      if (transaction.status !== 'card_verification' && amount !== 0) {
-                        displayAmount = amountText;
-                      }
-                      return (
-                        <div key={transaction.id} className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            {getIcon(transaction)}
-                            <div>
-                              <div className="text-white font-medium">{transaction.merchant}</div>
-                              <div className="text-gray-400 text-sm">
-                                {new Date(transaction.date).toLocaleTimeString('en-AU', {
-                                  hour: '2-digit',
-                                  minute: '2-digit',
-                                })}
-                                {transaction.status === "reverted" && " - Reverted"}
-                              </div>
-                              {transaction.description && (
-                                <div className="text-gray-400 text-sm">{transaction.description}</div>
-                              )}
-                            </div>
-                          </div>
-                          <div className="flex flex-col items-end">
-                            {displayAmount && (
-                              <div className={`text-${amountColor}-400`}>
-                                {displayAmount}
-                              </div>
-                            )}
-                            {transaction.secondary && (
-                              <div className="text-gray-400 text-sm">{transaction.secondary}</div>
-                            )}
+
+        <div className="mt-5 space-y-8">
+          {groups.map(({ key, label, items, total }) => (
+            <section key={key}>
+              <div className="flex items-baseline justify-between px-1 mb-2">
+                <div className="text-[17px] font-semibold">{label}</div>
+                <div className="text-[15px]" style={{ color: total > 0 ? "#22C55E" : total < 0 ? "#EF4444" : "#9AA3B2", fontVariantNumeric: "tabular-nums" }}>
+                  {(total > 0 ? "+" : total < 0 ? "-" : "") + "$" + Math.abs(total).toFixed(2)}
+                </div>
+              </div>
+
+              <div className="rounded-3xl p-3" style={{ background: "#181A1F", boxShadow: "inset 0 1px 0 rgba(255,255,255,.06)" }}>
+                <div className="space-y-2">
+                  {items.map((t) => {
+                    const amt = parseFloat(t.amount);
+                    const isReverted = t.status === "reverted";
+                    const isCV = t.status === "card_verification";
+                    const isPos = amt > 0;
+                    const isNeg = amt < 0;
+
+                    const primaryColor = isReverted ? "rgba(255,255,255,.7)" : isPos ? "#22C55E" : isNeg ? "#EF4444" : "#FFFFFF";
+                    const primaryText = isReverted ? "$" + Math.abs(amt).toFixed(2) : (isPos ? "+" : isNeg ? "-" : "") + "$" + Math.abs(amt).toFixed(2);
+
+                    const timeText = new Date(t.date).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false });
+                    const subs: string[] = [timeText];
+                    if (t.status === "reverted") subs.push("Reverted");
+                    if (t.status === "card_verification") subs.push("Card verification");
+
+                    return (
+                      <div key={t.id} className="flex items-center">
+                        <div className="mr-3">{getIcon(t)}</div>
+
+                        <div className="flex-1 min-w-0">
+                          <div className="text-[16px] font-semibold leading-tight truncate">{t.merchant}</div>
+                          <div className="text-[13px] text-white/60">
+                            {subs.join(" · ")}
+                            {t.description && <div className="text-[13px] text-white/60">{t.description}</div>}
                           </div>
                         </div>
-                      );
-                    })}
-                  </div>
+
+                        <div className="ml-3 text-right">
+                          {!isCV && (
+                            <div className="text-[16px]" style={{ color: primaryColor, textDecoration: isReverted ? "line-through" : "none", fontVariantNumeric: "tabular-nums" }}>
+                              {primaryText}
+                            </div>
+                          )}
+                          {t.secondary && <div className="text-[12px] text-[#6B7280]">{t.secondary}</div>}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
-              );
-            })}
-          </div>
-        ) : (
-          <div className="text-gray-400 text-center py-8" data-testid="no-transactions">
-            No transactions found
-          </div>
-        )}
+              </div>
+            </section>
+          ))}
+        </div>
       </div>
-      {/* Home indicator */}
-      <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2">
+
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2">
         <div className="w-32 h-1 bg-white/50 rounded-full"></div>
       </div>
     </div>
