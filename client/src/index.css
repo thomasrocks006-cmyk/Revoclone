@@ -1,0 +1,165 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: hsl(0, 0%, 4%);
+  --foreground: hsl(0, 0%, 100%);
+  --card: hsl(0, 0%, 16%);
+  --card-foreground: hsl(0, 0%, 100%);
+  --popover: hsl(0, 0%, 4%);
+  --popover-foreground: hsl(0, 0%, 100%);
+  --primary: hsl(249, 83%, 66%);
+  --primary-foreground: hsl(0, 0%, 100%);
+  --secondary: hsl(218, 83%, 59%);
+  --secondary-foreground: hsl(0, 0%, 100%);
+  --muted: hsl(0, 0%, 16%);
+  --muted-foreground: hsl(0, 0%, 62%);
+  --accent: hsl(0, 0%, 16%);
+  --accent-foreground: hsl(0, 0%, 100%);
+  --destructive: hsl(0, 84%, 60%);
+  --destructive-foreground: hsl(0, 0%, 100%);
+  --border: hsl(0, 0%, 20%);
+  --input: hsl(0, 0%, 16%);
+  --ring: hsl(249, 83%, 66%);
+  
+  /* Revolut Custom Colors */
+  --revolut-purple: hsl(249, 83%, 66%);
+  --revolut-blue: hsl(218, 83%, 59%);
+  --revolut-dark: hsl(0, 0%, 4%);
+  --revolut-card: hsl(0, 0%, 12%);
+  --revolut-gray: hsl(0, 0%, 62%);
+  --revolut-green: hsl(142, 76%, 36%);
+  --revolut-red: hsl(0, 84%, 60%);
+  
+  /* Merchant Colors */
+  --github: hsl(0, 0%, 0%);
+  --apple: hsl(0, 0%, 0%);
+  --mcdonalds: hsl(348, 87%, 44%);
+  --lime: hsl(82, 69%, 39%);
+  --thomas: hsl(25, 95%, 53%);
+  --rtf: hsl(322, 83%, 61%);
+  --pains: hsl(142, 76%, 36%);
+  --omio: hsl(0, 0%, 100%);
+  --alimentation: hsl(220, 9%, 46%);
+  --jay: hsl(25, 95%, 53%);
+  --pharmacie: hsl(0, 0%, 100%);
+  --marche: hsl(25, 95%, 53%);
+  --burger: hsl(25, 95%, 53%);
+  --olvadis: hsl(322, 83%, 61%);
+  --yesim: hsl(0, 0%, 100%);
+  
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --radius: 1rem;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overscroll-behavior: none;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    overscroll-behavior: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* iOS specific styles */
+  body {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* Hide scrollbars */
+  ::-webkit-scrollbar {
+    display: none;
+  }
+
+  .merchant-icon {
+    @apply w-10 h-10 rounded-full flex items-center justify-center font-semibold text-white text-sm;
+  }
+
+  .gradient-bg {
+    background: linear-gradient(135deg, var(--revolut-purple) 0%, var(--revolut-blue) 100%);
+  }
+
+  .transaction-card {
+    background: var(--revolut-card);
+    border: 1px solid hsl(0, 0%, 20%);
+  }
+
+  /* Status bar height for iPhone */
+  .status-bar-height {
+    height: 44px;
+  }
+
+  /* Bottom navigation height */
+  .bottom-nav-height {
+    height: 56px;
+  }
+
+  /* Safe area adjustments */
+  .safe-area-top {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* Merchant icon colors */
+  .icon-github { background-color: var(--github); border: 1px solid hsl(0, 0%, 20%); }
+  .icon-apple { background-color: var(--apple); border: 1px solid hsl(0, 0%, 20%); }
+  .icon-mcdonalds { background-color: var(--mcdonalds); }
+  .icon-lime { background-color: var(--lime); }
+  .icon-thomas { background-color: var(--thomas); }
+  .icon-rtf { background-color: var(--rtf); }
+  .icon-pains { background-color: var(--pains); }
+  .icon-omio { background-color: var(--omio); color: black; }
+  .icon-alimentation { background-color: var(--alimentation); }
+  .icon-jay { background-color: var(--jay); }
+  .icon-pharmacie { background-color: var(--pharmacie); color: black; }
+  .icon-marche { background-color: var(--marche); }
+  .icon-burger { background-color: var(--burger); }
+  .icon-olvadis { background-color: var(--olvadis); }
+  .icon-yesim { background-color: var(--yesim); color: black; }
+
+  /* Chart colors */
+  .chart-positive {
+    stroke: var(--revolut-green);
+    fill: transparent;
+  }
+
+  .chart-negative {
+    stroke: var(--revolut-red);
+    fill: transparent;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-primary text-primary-foreground rounded-full px-6 py-2 font-medium;
+  }
+
+  .nav-item {
+    @apply flex flex-col items-center gap-1 text-muted-foreground text-xs font-medium;
+  }
+
+  .nav-item.active {
+    @apply text-primary;
+  }
+
+  .crypto-card {
+    @apply bg-card rounded-2xl p-4 border border-border;
+  }
+}
