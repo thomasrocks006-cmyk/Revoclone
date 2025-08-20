@@ -11,8 +11,10 @@ export default function TransactionSheet({ tx, onClose }: { tx: Transaction; onC
 
   const amount = parseFloat(tx.amount || '0');
   const isNeg = amount < 0;
-  const symbol = tx.currency === 'EUR' ? '€' : tx.currency === 'USD' ? '$' : '$';
-  const amountText = `${isNeg ? '-' : '+'}${symbol}${Math.abs(amount).toFixed(2)}`;
+  const [showBaseCurrency, setShowBaseCurrency] = useState(true);
+  const symbol = (showBaseCurrency ? (tx.currency || 'AUD') : (tx.originalCurrency || tx.currency || 'AUD')) === 'EUR' ? '€' : '$';
+  const displayAmount = showBaseCurrency ? amount : parseFloat(tx.originalAmount || tx.amount || '0');
+  const amountText = `${displayAmount < 0 ? '-' : '+'}${symbol}${Math.abs(displayAmount).toFixed(2)}`;
 
   const time24 = (iso: string) => new Date(iso).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false });
   const dateLong = (iso: string) => new Date(iso).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
@@ -139,6 +141,11 @@ ${values.map(v => `"${String(v ?? '').replace(/"/g,'""')}"`).join(',')}`;
             <div className="text-[34px] font-extrabold leading-none pr-20 mb-2 text-white" style={{ fontVariantNumeric: 'tabular-nums' }}>
               {amountText}
             </div>
+            {(tx.originalAmount && tx.originalCurrency) && (
+              <button onClick={() => setShowBaseCurrency(v => !v)} className="text-xs text-white/70 underline mb-2">
+                Show {showBaseCurrency ? `${tx.originalCurrency}` : `${tx.currency || 'AUD'}`}
+              </button>
+            )}
 
             <div className="mb-1">
               <span className="text-[#60A5FA] text-[18px]">{tx.merchant}</span>

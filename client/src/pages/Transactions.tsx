@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import type { Transaction } from "@/types/transaction";
 import { useTransactions } from "@/hooks/useTransactions";
@@ -29,6 +29,44 @@ export default function Transactions() {
     const q = params.get('q');
     if (q) setSearchTerm(q);
   }, [setSearchTerm]);
+
+  // Sync URL with search and filters
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (hasActiveSearch && searchTerm) params.set('q', searchTerm);
+    else params.delete('q');
+    if (filters.dateFrom) params.set('from', filters.dateFrom);
+    else params.delete('from');
+    if (filters.dateTo) params.set('to', filters.dateTo);
+    else params.delete('to');
+    const cats = Array.from(filters.selectedCategories);
+    if (cats.length) params.set('cats', cats.join(','));
+    else params.delete('cats');
+    const newUrl = `${window.location.pathname}?${params.toString()}`.replace(/\?$/, '');
+    window.history.replaceState(null, '', newUrl);
+  }, [hasActiveSearch, searchTerm, filters.dateFrom, filters.dateTo, filters.selectedCategories]);
+
+  // Pagination by group (days)
+  const [visibleGroupCount, setVisibleGroupCount] = useState(6);
+  useEffect(() => {
+    setVisibleGroupCount(6);
+  }, [filters.filtered.length, searchTerm]);
+  const visibleGroups = useMemo(() => groups.slice(0, visibleGroupCount), [groups, visibleGroupCount]);
+
+  // Export CSV for current filtered transactions
+  const onExportCsv = () => {
+    const rows = filters.filtered;
+    const headers = ['id','date','merchant','amount','currency','status','description','secondary','category'];
+    const csv = [headers.join(',')]
+      .concat(rows.map(t => [t.id, t.date, t.merchant, t.amount, t.currency || 'AUD', t.status || '', t.description || '', t.secondary || '', t.category || '']
+        .map(v => `"${String(v ?? '').replace(/"/g,'""')}"`).join(',')))
+      .join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'transactions_export.csv';
+    link.click();
+  };
 
   const formatAmount = (amount: string, currency: string = 'AUD') => {
     const value = parseFloat(amount);
@@ -67,6 +105,10 @@ export default function Transactions() {
             clearFilters={filters.clearFilters}
           />
 
+          <div className="mt-3 flex justify-end">
+            <button onClick={onExportCsv} className="h-9 rounded-full px-3 bg-white/10 hover:bg-white/15 text-sm">Export CSV</button>
+          </div>
+
           <div className="mt-3 flex items-center justify-center gap-8 text-[15px]">
             <span className="text-[#9AA3B2]">November 2023</span>
             <span className="text-[#9AA3B2]">June</span>
@@ -75,7 +117,7 @@ export default function Transactions() {
           </div>
 
           <div className="mt-5 space-y-8">
-            {groups.map(({ key, label, items, total }) => (
+            {visibleGroups.map(({ key, label, items, total }) => (
               <section key={key}>
                 <div className="flex items-baseline justify-between px-1 mb-2">
                   <div className="text-[17px] font-semibold">{label}</div>
@@ -93,6 +135,11 @@ export default function Transactions() {
                 </div>
               </section>
             ))}
+            {visibleGroupCount < groups.length && (
+              <div className="flex justify-center">
+                <button onClick={() => setVisibleGroupCount(c => c + 6)} className="h-10 rounded-lg px-4 bg-white/10 hover:bg-white/15">Load more</button>
+              </div>
+            )}
           </div>
         </div>
 
