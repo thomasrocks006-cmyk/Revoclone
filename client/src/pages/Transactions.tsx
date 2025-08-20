@@ -4,6 +4,9 @@ import type { Transaction } from "@/types/transaction";
 import { useTransactions } from "@/hooks/useTransactions";
 import { useTransactionGroups } from "@/hooks/useTransactionGroups";
 import { useSearch } from "@/hooks/useSearch";
+import { useEffect } from "react";
+import { useTransactionFilters } from "@/hooks/useTransactionFilters";
+import FiltersBar from "@/components/FiltersBar";
 import { useScrollLock } from "@/hooks/useScrollLock";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import TransactionIcon from "@/components/TransactionIcon";
@@ -15,9 +18,17 @@ export default function Transactions() {
   const [openTx, setOpenTx] = useState<Transaction | null>(null);
   const { transactions, loading, error } = useTransactions();
   const { searchTerm, setSearchTerm, filteredTransactions, hasActiveSearch } = useSearch(transactions);
-  const groups = useTransactionGroups(filteredTransactions);
+  const filters = useTransactionFilters(filteredTransactions);
+  const groups = useTransactionGroups(filters.filtered);
 
   useScrollLock(!!openTx);
+
+  // Prefill search from ?q=
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const q = params.get('q');
+    if (q) setSearchTerm(q);
+  }, [setSearchTerm]);
 
   const formatAmount = (amount: string, currency: string = 'AUD') => {
     const value = parseFloat(amount);
@@ -44,6 +55,17 @@ export default function Transactions() {
           <div className="mt-3">
             <SearchBar value={searchTerm} onChange={setSearchTerm} hasActiveSearch={hasActiveSearch} />
           </div>
+
+          <FiltersBar
+            dateFrom={filters.dateFrom}
+            dateTo={filters.dateTo}
+            setDateFrom={filters.setDateFrom}
+            setDateTo={filters.setDateTo}
+            categories={filters.allCategories}
+            selectedCategories={filters.selectedCategories}
+            toggleCategory={filters.toggleCategory}
+            clearFilters={filters.clearFilters}
+          />
 
           <div className="mt-3 flex items-center justify-center gap-8 text-[15px]">
             <span className="text-[#9AA3B2]">November 2023</span>

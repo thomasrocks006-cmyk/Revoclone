@@ -25,12 +25,17 @@ export default function TransactionSheet({ tx, onClose }: { tx: Transaction; onC
   const [adjustment, setAdjustment] = useState<string>(() => localStorage.getItem(storeKey('adjustment')) || '0');
   const [note, setNote] = useState<string>(() => localStorage.getItem(storeKey('note')) || '');
   const [receiptName, setReceiptName] = useState<string>(() => localStorage.getItem(storeKey('receiptName')) || '');
+  const [receiptUrl, setReceiptUrl] = useState<string | undefined>(() => localStorage.getItem(storeKey('receiptUrl')) || undefined);
 
   useEffect(() => localStorage.setItem(storeKey('excluded'), excluded ? '1' : '0'), [excluded]);
   useEffect(() => localStorage.setItem(storeKey('category'), category), [category]);
   useEffect(() => localStorage.setItem(storeKey('adjustment'), adjustment), [adjustment]);
   useEffect(() => localStorage.setItem(storeKey('note'), note), [note]);
   useEffect(() => localStorage.setItem(storeKey('receiptName'), receiptName), [receiptName]);
+  useEffect(() => {
+    if (receiptUrl) localStorage.setItem(storeKey('receiptUrl'), receiptUrl);
+    else localStorage.removeItem(storeKey('receiptUrl'));
+  }, [receiptUrl]);
 
   const merchantStats = useMemo(() => {
     const list = (transactions || []).filter(t => t.merchant === tx.merchant);
@@ -81,7 +86,18 @@ ${values.map(v => `"${String(v ?? '').replace(/"/g,'""')}"`).join(',')}`;
   const onUploadReceipt = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      if (!/^image\/(png|jpeg|jpg|webp)$/i.test(file.type) || file.size > 5 * 1024 * 1024) {
+        window.alert('Please upload an image (PNG/JPEG/WebP) up to 5MB.');
+        return;
+      }
       setReceiptName(file.name);
+      const url = URL.createObjectURL(file);
+      setReceiptUrl(url);
+      // OCR stub - in real implementation, call OCR service and set suggested fields
+      setTimeout(() => {
+        // Example: suggest category based on OCR keywords
+        if (!category || category === 'Uncategorized') setCategory('Restaurants');
+      }, 400);
     }
   };
 
@@ -179,8 +195,23 @@ ${values.map(v => `"${String(v ?? '').replace(/"/g,'""')}"`).join(',')}`;
             </Block>
 
             <Block>
-              <input ref={fileInputRef} type="file" className="hidden" onChange={onUploadReceipt} />
+              <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={onUploadReceipt} />
               <Row label="Receipt" value={receiptName || 'Upload'} valueClass="text-[#60A5FA]" icon="camera" onClick={() => fileInputRef.current?.click()} clickable />
+              {receiptUrl && (
+                <div className="mt-2">
+                  <div className="rounded-lg overflow-hidden bg-white/5 p-2 flex items-center gap-3">
+                    <img src={receiptUrl} alt="Receipt" className="w-16 h-16 object-cover rounded" />
+                    <div className="flex-1">
+                      <div className="text-sm">{receiptName}</div>
+                      <div className="text-xs text-white/60">Preview</div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button className="px-3 py-1 text-sm rounded bg-white/10 hover:bg-white/15" onClick={() => window.open(receiptUrl, '_blank')}>Open</button>
+                      <button className="px-3 py-1 text-sm rounded bg-white/10 hover:bg-white/15" onClick={() => { setReceiptUrl(undefined); setReceiptName(''); }}>Delete</button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </Block>
 
             <Block>
