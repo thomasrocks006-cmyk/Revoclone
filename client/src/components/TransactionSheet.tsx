@@ -21,7 +21,7 @@ export default function TransactionSheet({ tx, onClose }: { tx: Transaction; onC
   const storeKey = (k: string) => `tx:${tx.id}:${k}`;
 
   const [excluded, setExcluded] = useState<boolean>(() => localStorage.getItem(storeKey('excluded')) === '1');
-  const [category, setCategory] = useState<string>(() => localStorage.getItem(storeKey('category')) || 'Restaurants');
+  const [category, setCategory] = useState<string>(() => localStorage.getItem(storeKey('category')) || tx.category || 'Uncategorized');
   const [adjustment, setAdjustment] = useState<string>(() => localStorage.getItem(storeKey('adjustment')) || '0');
   const [note, setNote] = useState<string>(() => localStorage.getItem(storeKey('note')) || '');
   const [receiptName, setReceiptName] = useState<string>(() => localStorage.getItem(storeKey('receiptName')) || '');
@@ -34,9 +34,18 @@ export default function TransactionSheet({ tx, onClose }: { tx: Transaction; onC
 
   const merchantStats = useMemo(() => {
     const list = (transactions || []).filter(t => t.merchant === tx.merchant);
-    const total = list.reduce((sum, t) => sum + parseFloat(t.amount || '0'), 0);
-    return { count: list.length, total };
+    const netTotal = list.reduce((sum, t) => sum + parseFloat(t.amount || '0'), 0);
+    return { count: list.length, total: netTotal };
   }, [transactions, tx.merchant]);
+
+  const categoryOptions = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const t of transactions || []) {
+      const key = (t.category || inferCategoryFromMerchant(t.merchant));
+      counts.set(key, (counts.get(key) || 0) + 1);
+    }
+    return Array.from(counts.keys()).sort();
+  }, [transactions]);
 
   const openInMaps = () => {
     if (tx.location?.lat && tx.location?.lon) {
@@ -76,10 +85,8 @@ ${values.map(v => `"${String(v ?? '').replace(/"/g,'""')}"`).join(',')}`;
     }
   };
 
-  const promptCategory = () => {
-    const val = window.prompt('Set category', category);
-    if (val) setCategory(val);
-  };
+  const [showCategoryPicker, setShowCategoryPicker] = useState(false);
+  const promptCategory = () => setShowCategoryPicker(true);
 
   const promptAdjustment = () => {
     const val = window.prompt('Adjust amount for analytics (use positive or negative)', adjustment);
@@ -123,7 +130,7 @@ ${values.map(v => `"${String(v ?? '').replace(/"/g,'""')}"`).join(',')}`;
 
             <div className="text-white/60 mb-4 text-[15px]">{dateLong(tx.date)}, {time24(tx.date)}</div>
 
-            <button onClick={() => window.alert('Split bill coming soon')} className="inline-flex items-center gap-3 rounded-full bg白/10 px-5 h-12 hover:bg-white/15 transition-colors" aria-label="Split bill">
+            <button onClick={() => window.alert('Split bill coming soon')} className="inline-flex items-center gap-3 rounded-full bg-white/10 px-5 h-12 hover:bg-white/15 transition-colors" aria-label="Split bill">
               <svg width="20" height="20" viewBox="0 0 24 24" className="text-white/80">
                 <path d="M8 12h8M12 8v8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
               </svg>
@@ -183,6 +190,32 @@ ${values.map(v => `"${String(v ?? '').replace(/"/g,'""')}"`).join(',')}`;
             <Block>
               <Row label="Get help" chevron onClick={() => window.alert('Help coming soon')} clickable />
             </Block>
+
+            {showCategoryPicker && (
+              <div className="fixed inset-0 z-50" onClick={() => setShowCategoryPicker(false)}>
+                <div className="absolute inset-0 bg-black/60" />
+                <div className="absolute inset-0 flex items-end">
+                  <div className="w-full max-w-[430px] mx-auto bg-[#1C1C1E] rounded-t-2xl text-white p-4" onClick={(e) => e.stopPropagation()}>
+                    <div className="text-center font-semibold mb-2">Select category</div>
+                    <div className="max-h-64 overflow-y-auto space-y-1">
+                      {[category, ...categoryOptions.filter(c => c !== category)].map((c) => (
+                        <button key={c} className={`w-full text-left px-3 py-2 rounded-lg ${c === category ? 'bg-white/10' : 'hover:bg-white/5'}`} onClick={() => { setCategory(c); setShowCategoryPicker(false); }}>
+                          {c}
+                        </button>
+                      ))}
+                      <button className="w-full text-left px-3 py-2 rounded-lg hover:bg-white/5" onClick={() => {
+                        const val = window.prompt('New category name');
+                        if (val) setCategory(val);
+                        setShowCategoryPicker(false);
+                      }}>+ New category</button>
+                    </div>
+                    <div className="mt-3 flex justify-end">
+                      <button className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/15" onClick={() => setShowCategoryPicker(false)}>Close</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -215,6 +248,16 @@ function Row({ label, value, valueClass, chevron, icon, customRight, onClick, cl
       )}
     </div>
   );
+}
+
+function inferCategoryFromMerchant(merchant: string): string {
+  const m = merchant.toLowerCase();
+  if (/(mcdonald|burger|cafe|bar|restaurant|pizza|dishoom|nando|chez|trattoria|gelato|caffe|cafe|pub)/.test(m)) return 'Restaurants';
+  if (/(uber|taxi|train|tfl|heathrow|express|bus|sncf|tram|ferry)/.test(m)) return 'Transport';
+  if (/(hotel|resort|airbnb|hostel)/.test(m)) return 'Accommodation';
+  if (/(market|grocer|waitrose|marks|spencer|selfridges|galeries)/.test(m)) return 'Shopping';
+  if (/(museum|tickets|tour|storehouse|abbey|beach|club)/.test(m)) return 'Entertainment';
+  return 'Uncategorized';
 }
 
 function RowIcon({ kind }: { kind: string }) {
