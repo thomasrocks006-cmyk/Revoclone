@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import type { Transaction } from "@/types/transaction";
 import { useTransactions } from "@/hooks/useTransactions";
@@ -15,6 +15,7 @@ import AutoSizer from 'react-virtualized-auto-sizer';
 import SearchBar from "@/components/SearchBar";
 import TransactionSheet from "@/components/TransactionSheet";
 import { TransactionSkeleton, ErrorMessage, EmptyState } from "@/components/LoadingStates";
+import MonthlySummary from "@/components/MonthlySummary";
 
 export default function Transactions() {
   const [openTx, setOpenTx] = useState<Transaction | null>(null);
@@ -80,6 +81,9 @@ export default function Transactions() {
   if (error) return <ErrorMessage error={error} onRetry={() => window.location.reload()} />;
   if (transactions.length === 0) return <EmptyState />;
 
+  // Keyboard navigation prep: focus list and open selected on Enter
+  const listRef = useRef<HTMLDivElement | null>(null);
+
   return (
     <ErrorBoundary>
       <div className="min-h-screen bg-black text-white" data-testid="transactions-screen">
@@ -118,7 +122,9 @@ export default function Transactions() {
             <span className="text-[#9AA3B2]">August</span>
           </div>
 
-          <div className="mt-5 space-y-8">
+          <MonthlySummary transactions={filters.filtered} />
+
+          <div ref={listRef} className="mt-5 space-y-8" tabIndex={0}>
             {visibleGroups.map(({ key, label, items, total }) => (
               <section key={key}>
                 <div className="flex items-baseline justify-between px-1 mb-2">

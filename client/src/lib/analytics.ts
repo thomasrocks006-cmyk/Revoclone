@@ -37,3 +37,42 @@ export function inferCategoryFromMerchant(merchant: string): string {
   return 'Uncategorized';
 }
 
+// Budgets per category
+const budgetKey = (cat: string) => `budget:${cat}`;
+export function getBudgetForCategory(category: string): number {
+  try {
+    const v = localStorage.getItem(budgetKey(category));
+    return v ? parseFloat(v) : 0;
+  } catch { return 0; }
+}
+
+export function setBudgetForCategory(category: string, amount: number) {
+  try { localStorage.setItem(budgetKey(category), String(amount)); } catch {}
+}
+
+export function aggregateByCategory(transactions: Transaction[]): Map<string, { spend: number; income: number; count: number }> {
+  const map = new Map<string, { spend: number; income: number; count: number }>();
+  for (const t of transactions) {
+    const cat = getEffectiveCategory(t);
+    const amt = parseFloat(t.amount || '0');
+    const obj = map.get(cat) || { spend: 0, income: 0, count: 0 };
+    if (amt < 0) obj.spend += Math.abs(amt);
+    else obj.income += amt;
+    obj.count += 1;
+    map.set(cat, obj);
+  }
+  return map;
+}
+
+export function aggregateByMerchant(transactions: Transaction[]): Map<string, { total: number; count: number }> {
+  const map = new Map<string, { total: number; count: number }>();
+  for (const t of transactions) {
+    const amt = parseFloat(t.amount || '0');
+    const obj = map.get(t.merchant) || { total: 0, count: 0 };
+    obj.total += amt;
+    obj.count += 1;
+    map.set(t.merchant, obj);
+  }
+  return map;
+}
+
