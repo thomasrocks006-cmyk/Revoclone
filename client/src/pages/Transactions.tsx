@@ -27,6 +27,12 @@ export default function Transactions() {
 
   useScrollLock(!!openTx);
 
+  const formatAmount = (amount: string, currency: string = 'AUD') => {
+    const value = parseFloat(amount);
+    const symbol = currency === "AUD" ? "$" : currency === "EUR" ? "€" : currency === "USD" ? "$" : "";
+    return `${value >= 0 ? "+" : ""}${symbol}${Math.abs(value).toFixed(2)}`;
+  };
+
   // Prefill search from ?q=
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -57,6 +63,17 @@ export default function Transactions() {
   }, [filters.filtered.length, searchTerm]);
   const visibleGroups = useMemo(() => groups.slice(0, visibleGroupCount), [groups, visibleGroupCount]);
 
+  // Keyboard navigation: focus list and open selected on Enter
+  const listRef = useRef<HTMLDivElement | null>(null);
+  const flatItems = useMemo(() => visibleGroups.flatMap(g => g.items), [visibleGroups]);
+  const [focusIndex, setFocusIndex] = useState<number>(-1);
+  useEffect(() => { setFocusIndex(-1); }, [searchTerm, filters.filtered.length]);
+  const onKeyDownList = (e: React.KeyboardEvent) => {
+    if (e.key === 'ArrowDown') { e.preventDefault(); setFocusIndex(i => Math.min(i + 1, flatItems.length - 1)); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); setFocusIndex(i => Math.max(i - 1, 0)); }
+    else if (e.key === 'Enter' && focusIndex >= 0) { setOpenTx(flatItems[focusIndex]); }
+  };
+
   // Export CSV for current filtered transactions
   const onExportCsv = () => {
     const rows = filters.filtered;
@@ -72,26 +89,9 @@ export default function Transactions() {
     link.click();
   };
 
-  const formatAmount = (amount: string, currency: string = 'AUD') => {
-    const value = parseFloat(amount);
-    const symbol = currency === "AUD" ? "$" : currency === "EUR" ? "€" : currency === "USD" ? "$" : "";
-    return `${value >= 0 ? "+" : ""}${symbol}${Math.abs(value).toFixed(2)}`;
-  };
-
   if (loading) return <TransactionSkeleton />;
   if (error) return <ErrorMessage error={error} onRetry={() => window.location.reload()} />;
   if (transactions.length === 0) return <EmptyState />;
-
-  // Keyboard navigation: focus list and open selected on Enter
-  const listRef = useRef<HTMLDivElement | null>(null);
-  const flatItems = useMemo(() => visibleGroups.flatMap(g => g.items), [visibleGroups]);
-  const [focusIndex, setFocusIndex] = useState<number>(-1);
-  useEffect(() => { setFocusIndex(-1); }, [searchTerm, filters.filtered.length]);
-  const onKeyDownList = (e: React.KeyboardEvent) => {
-    if (e.key === 'ArrowDown') { e.preventDefault(); setFocusIndex(i => Math.min(i + 1, flatItems.length - 1)); }
-    else if (e.key === 'ArrowUp') { e.preventDefault(); setFocusIndex(i => Math.max(i - 1, 0)); }
-    else if (e.key === 'Enter' && focusIndex >= 0) { setOpenTx(flatItems[focusIndex]); }
-  };
 
   return (
     <ErrorBoundary>
@@ -125,13 +125,6 @@ export default function Transactions() {
             <PrintExport />
           </div>
 
-          <div className="mt-3 flex items-center justify-center gap-8 text-[15px]">
-            <span className="text-[#9AA3B2]">November 2023</span>
-            <span className="text-[#9AA3B2]">June</span>
-            <span className="px-4 h-8 rounded-full grid place-items-center" style={{ background: "#232730" }}>July</span>
-            <span className="text-[#9AA3B2]">August</span>
-          </div>
-
           <MonthlySummary transactions={filters.filtered} />
 
           <div ref={listRef} className="mt-5 space-y-8" tabIndex={0} onKeyDown={onKeyDownList}>
@@ -148,7 +141,7 @@ export default function Transactions() {
                   <div style={{ height: Math.min(56 * items.length, 56 * 8) }}>
                     <AutoSizer>
                       {({ height, width }) => (
-                        <List height={height} width={width} itemSize={56} itemCount={items.length} itemData={{ items, setOpenTx, formatAmount }}>
+                        <List height={height} width={width} itemSize={56} itemCount={items.length} itemData={{ items, setOpenTx, formatAmount, searchTerm }}>
                           {VirtualRow as any}
                         </List>
                       )}
@@ -171,7 +164,7 @@ export default function Transactions() {
   );
 }
 
-const TransactionRow = React.memo(({ transaction, onClick, formatAmount }: { transaction: Transaction; onClick: () => void; formatAmount: (amount: string, currency?: string) => string; }) => {
+const TransactionRow = React.memo(({ transaction, onClick, formatAmount, searchTerm }: { transaction: Transaction; onClick: () => void; formatAmount: (amount: string, currency?: string) => string; searchTerm: string }) => {
   const amount = parseFloat(transaction.amount);
   const isReverted = transaction.status === "reverted";
   const isCV = transaction.status === "card_verification";
@@ -214,12 +207,11 @@ const TransactionRow = React.memo(({ transaction, onClick, formatAmount }: { tra
   );
 });
 
-function VirtualRow({ index, style, data }: ListChildComponentProps<{ items: Transaction[]; setOpenTx: (t: Transaction) => void; formatAmount: (a: string, c?: string) => string }>) {
+function VirtualRow({ index, style, data }: ListChildComponentProps<{ items: Transaction[]; setOpenTx: (t: Transaction) => void; formatAmount: (a: string, c?: string) => string, searchTerm: string }>) {
   const t = data.items[index];
   return (
     <div style={style}>
-      <TransactionRow transaction={t} onClick={() => data.setOpenTx(t)} formatAmount={data.formatAmount} />
+      <TransactionRow transaction={t} onClick={() => data.setOpenTx(t)} formatAmount={data.formatAmount} searchTerm={data.searchTerm} />
     </div>
   );
 }
-
