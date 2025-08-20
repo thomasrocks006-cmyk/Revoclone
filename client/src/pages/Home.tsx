@@ -78,10 +78,11 @@ export default function Home() {
   }
 
   // Derive initials for avatar
+  const fullName = [user?.firstName, user?.lastName].filter(Boolean).join(" ") || user?.username || "TF";
   const initials =
-    (user?.name ?? "TF")
+    fullName
       .split(" ")
-      .map((s) => s[0])
+      .map((s) => s[0] as string)
       .join("")
       .slice(0, 2)
       .toUpperCase() || "TF";

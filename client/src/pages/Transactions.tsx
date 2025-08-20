@@ -4,7 +4,6 @@ import type { Transaction } from "@/types/transaction";
 import { useTransactions } from "@/hooks/useTransactions";
 import { useTransactionGroups } from "@/hooks/useTransactionGroups";
 import { useSearch } from "@/hooks/useSearch";
-import { useEffect } from "react";
 import { useTransactionFilters } from "@/hooks/useTransactionFilters";
 import FiltersBar from "@/components/FiltersBar";
 import { useScrollLock } from "@/hooks/useScrollLock";
