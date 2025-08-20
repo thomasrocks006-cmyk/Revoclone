@@ -227,7 +227,7 @@ ${values.map(v => `"${String(v ?? '').replace(/"/g,'""')}"`).join(',')}`;
             </Block>
 
             <Block>
-              <Row label="Get help" chevron onClick={() => window.alert('Help coming soon')} clickable />
+              <Row label="Get help" chevron onClick={() => startDisputeFlow(tx)} clickable />
             </Block>
 
             {showCategoryPicker && (
@@ -352,5 +352,14 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
       <span className={`inline-block h-7 w-7 transform rounded-full bg-white transition-transform will-change-transform shadow-sm ${checked ? 'translate-x-[22px]' : 'translate-x-0.5'}`} />
     </button>
   );
+}
+
+function startDisputeFlow(tx: Transaction) {
+  const reason = window.prompt('Dispute reason (e.g., not my transaction, incorrect amount, service not received)');
+  if (!reason) return;
+  const email = `support@example.com`;
+  const subject = encodeURIComponent(`Dispute transaction ${tx.id} (${tx.merchant})`);
+  const body = encodeURIComponent(`Hello,\n\nI would like to dispute the following transaction:\n\nID: ${tx.id}\nDate: ${tx.date}\nMerchant: ${tx.merchant}\nAmount: ${tx.amount} ${tx.currency || ''}\nReason: ${reason}\n\nThank you.`);
+  window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
 }
 

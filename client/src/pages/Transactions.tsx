@@ -12,10 +12,12 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import TransactionIcon from "@/components/TransactionIcon";
 import { FixedSizeList as List, ListChildComponentProps } from 'react-window';
 import AutoSizer from 'react-virtualized-auto-sizer';
+import HighlightText from "@/components/HighlightText";
 import SearchBar from "@/components/SearchBar";
 import TransactionSheet from "@/components/TransactionSheet";
 import { TransactionSkeleton, ErrorMessage, EmptyState } from "@/components/LoadingStates";
 import MonthlySummary from "@/components/MonthlySummary";
+import PrintExport from "@/components/PrintExport";
 
 export default function Transactions() {
   const [openTx, setOpenTx] = useState<Transaction | null>(null);
@@ -81,8 +83,16 @@ export default function Transactions() {
   if (error) return <ErrorMessage error={error} onRetry={() => window.location.reload()} />;
   if (transactions.length === 0) return <EmptyState />;
 
-  // Keyboard navigation prep: focus list and open selected on Enter
+  // Keyboard navigation: focus list and open selected on Enter
   const listRef = useRef<HTMLDivElement | null>(null);
+  const flatItems = useMemo(() => visibleGroups.flatMap(g => g.items), [visibleGroups]);
+  const [focusIndex, setFocusIndex] = useState<number>(-1);
+  useEffect(() => { setFocusIndex(-1); }, [searchTerm, filters.filtered.length]);
+  const onKeyDownList = (e: React.KeyboardEvent) => {
+    if (e.key === 'ArrowDown') { e.preventDefault(); setFocusIndex(i => Math.min(i + 1, flatItems.length - 1)); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); setFocusIndex(i => Math.max(i - 1, 0)); }
+    else if (e.key === 'Enter' && focusIndex >= 0) { setOpenTx(flatItems[focusIndex]); }
+  };
 
   return (
     <ErrorBoundary>
@@ -111,8 +121,9 @@ export default function Transactions() {
             clearFilters={filters.clearFilters}
           />
 
-          <div className="mt-3 flex justify-end">
+          <div className="mt-3 flex justify-end gap-2">
             <button onClick={onExportCsv} className="h-9 rounded-full px-3 bg-white/10 hover:bg-white/15 text-sm">Export CSV</button>
+            <PrintExport />
           </div>
 
           <div className="mt-3 flex items-center justify-center gap-8 text-[15px]">
@@ -124,7 +135,7 @@ export default function Transactions() {
 
           <MonthlySummary transactions={filters.filtered} />
 
-          <div ref={listRef} className="mt-5 space-y-8" tabIndex={0}>
+          <div ref={listRef} className="mt-5 space-y-8" tabIndex={0} onKeyDown={onKeyDownList}>
             {visibleGroups.map(({ key, label, items, total }) => (
               <section key={key}>
                 <div className="flex items-baseline justify-between px-1 mb-2">
@@ -183,10 +194,12 @@ const TransactionRow = React.memo(({ transaction, onClick, formatAmount }: { tra
       </div>
 
       <div className="flex-1 min-w-0">
-        <div className="text-[16px] font-semibold leading-tight truncate">{transaction.merchant}</div>
+        <div className="text-[16px] font-semibold leading-tight truncate">
+          <HighlightText text={transaction.merchant} term={searchTerm} />
+        </div>
         <div className="text-[13px] text-white/60">
           {subs.join(" · ")}
-          {transaction.description && <div className="text-[13px] text-white/60">{transaction.description}</div>}
+          {transaction.description && <div className="text-[13px] text-white/60"><HighlightText text={transaction.description} term={searchTerm} /></div>}
         </div>
       </div>
 
