@@ -1,5 +1,6 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { Transaction } from '@/types/transaction';
+import { getEffectiveCategory } from '@/lib/analytics';
 
 export type TransactionFilters = {
   dateFrom?: string;
@@ -15,7 +16,7 @@ export const useTransactionFilters = (transactions: Transaction[]) => {
   const allCategories = useMemo(() => {
     const set = new Set<string>();
     for (const t of transactions) {
-      const c = (t.category || inferCategoryFromMerchant(t.merchant));
+      const c = getEffectiveCategory(t);
       if (c) set.add(c);
     }
     return Array.from(set).sort();
@@ -31,7 +32,7 @@ export const useTransactionFilters = (transactions: Transaction[]) => {
         if (d > end.getTime()) return false;
       }
       if (selectedCategories.size > 0) {
-        const c = (t.category || inferCategoryFromMerchant(t.merchant));
+        const c = getEffectiveCategory(t);
         if (!selectedCategories.has(c)) return false;
       }
       return true;
@@ -53,6 +54,40 @@ export const useTransactionFilters = (transactions: Transaction[]) => {
     setSelectedCategories(new Set());
   };
 
+  // Initialize from URL
+  useEffect(() => {
+    const p = new URLSearchParams(window.location.search);
+    const f = p.get('from') || undefined;
+    const t = p.get('to') || undefined;
+    const cats = (p.get('cats') || '').split(',').filter(Boolean);
+    if (f) setDateFrom(f);
+    if (t) setDateTo(t);
+    if (cats.length) setSelectedCategories(new Set(cats));
+  }, []);
+
+  // Persist to localStorage
+  useEffect(() => {
+    try {
+      const data = { dateFrom, dateTo, selectedCategories: Array.from(selectedCategories) };
+      localStorage.setItem('tx:filters', JSON.stringify(data));
+    } catch {}
+  }, [dateFrom, dateTo, selectedCategories]);
+
+  // Restore last-used if URL doesn’t specify
+  useEffect(() => {
+    const p = new URLSearchParams(window.location.search);
+    if (p.get('from') || p.get('to') || p.get('cats')) return;
+    try {
+      const raw = localStorage.getItem('tx:filters');
+      if (raw) {
+        const parsed = JSON.parse(raw) as { dateFrom?: string; dateTo?: string; selectedCategories?: string[] };
+        if (parsed.dateFrom) setDateFrom(parsed.dateFrom);
+        if (parsed.dateTo) setDateTo(parsed.dateTo);
+        if (parsed.selectedCategories?.length) setSelectedCategories(new Set(parsed.selectedCategories));
+      }
+    } catch {}
+  }, []);
+
   return {
     dateFrom,
     dateTo,
@@ -66,13 +101,5 @@ export const useTransactionFilters = (transactions: Transaction[]) => {
   };
 };
 
-function inferCategoryFromMerchant(merchant: string): string {
-  const m = merchant.toLowerCase();
-  if (/(mcdonald|burger|cafe|bar|restaurant|pizza|dishoom|nando|chez|trattoria|gelato|caffe|cafe|pub)/.test(m)) return 'Restaurants';
-  if (/(uber|taxi|train|tfl|heathrow|express|bus|sncf|tram|ferry)/.test(m)) return 'Transport';
-  if (/(hotel|resort|airbnb|hostel)/.test(m)) return 'Accommodation';
-  if (/(market|grocer|waitrose|marks|spencer|selfridges|galeries)/.test(m)) return 'Shopping';
-  if (/(museum|tickets|tour|storehouse|abbey|beach|club)/.test(m)) return 'Entertainment';
-  return 'Uncategorized';
-}
+// infer moved to lib/analytics
 

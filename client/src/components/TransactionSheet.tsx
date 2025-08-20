@@ -3,6 +3,7 @@ import type { Transaction } from '@/types/transaction';
 import TransactionIcon from '@/components/TransactionIcon';
 import { useTransactions } from '@/hooks/useTransactions';
 import { useFocusManagement } from '@/hooks/useAccessibility';
+import { setTransactionExcluded, setCategoryOverride, getEffectiveCategory } from '@/lib/analytics';
 
 export default function TransactionSheet({ tx, onClose }: { tx: Transaction; onClose: () => void }) {
   const { transactions } = useTransactions();
@@ -23,14 +24,14 @@ export default function TransactionSheet({ tx, onClose }: { tx: Transaction; onC
   const storeKey = (k: string) => `tx:${tx.id}:${k}`;
 
   const [excluded, setExcluded] = useState<boolean>(() => localStorage.getItem(storeKey('excluded')) === '1');
-  const [category, setCategory] = useState<string>(() => localStorage.getItem(storeKey('category')) || tx.category || 'Uncategorized');
+  const [category, setCategory] = useState<string>(() => localStorage.getItem(storeKey('category')) || getEffectiveCategory(tx));
   const [adjustment, setAdjustment] = useState<string>(() => localStorage.getItem(storeKey('adjustment')) || '0');
   const [note, setNote] = useState<string>(() => localStorage.getItem(storeKey('note')) || '');
   const [receiptName, setReceiptName] = useState<string>(() => localStorage.getItem(storeKey('receiptName')) || '');
   const [receiptUrl, setReceiptUrl] = useState<string | undefined>(() => localStorage.getItem(storeKey('receiptUrl')) || undefined);
 
-  useEffect(() => localStorage.setItem(storeKey('excluded'), excluded ? '1' : '0'), [excluded]);
-  useEffect(() => localStorage.setItem(storeKey('category'), category), [category]);
+  useEffect(() => { localStorage.setItem(storeKey('excluded'), excluded ? '1' : '0'); setTransactionExcluded(tx.id, excluded); }, [excluded, tx.id]);
+  useEffect(() => { localStorage.setItem(storeKey('category'), category); setCategoryOverride(tx.id, category); }, [category, tx.id]);
   useEffect(() => localStorage.setItem(storeKey('adjustment'), adjustment), [adjustment]);
   useEffect(() => localStorage.setItem(storeKey('note'), note), [note]);
   useEffect(() => localStorage.setItem(storeKey('receiptName'), receiptName), [receiptName]);

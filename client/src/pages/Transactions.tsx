@@ -10,6 +10,8 @@ import FiltersBar from "@/components/FiltersBar";
 import { useScrollLock } from "@/hooks/useScrollLock";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import TransactionIcon from "@/components/TransactionIcon";
+import { FixedSizeList as List, ListChildComponentProps } from 'react-window';
+import AutoSizer from 'react-virtualized-auto-sizer';
 import SearchBar from "@/components/SearchBar";
 import TransactionSheet from "@/components/TransactionSheet";
 import { TransactionSkeleton, ErrorMessage, EmptyState } from "@/components/LoadingStates";
@@ -127,10 +129,14 @@ export default function Transactions() {
                 </div>
 
                 <div className="rounded-3xl p-3" style={{ background: "#181A1F", boxShadow: "inset 0 1px 0 rgba(255,255,255,.06)" }}>
-                  <div className="space-y-2">
-                    {items.map((transaction) => (
-                      <TransactionRow key={transaction.id} transaction={transaction} onClick={() => setOpenTx(transaction)} formatAmount={formatAmount} />
-                    ))}
+                  <div style={{ height: Math.min(56 * items.length, 56 * 8) }}>
+                    <AutoSizer>
+                      {({ height, width }) => (
+                        <List height={height} width={width} itemSize={56} itemCount={items.length} itemData={{ items, setOpenTx, formatAmount }}>
+                          {VirtualRow as any}
+                        </List>
+                      )}
+                    </AutoSizer>
                   </div>
                 </div>
               </section>
@@ -189,4 +195,13 @@ const TransactionRow = React.memo(({ transaction, onClick, formatAmount }: { tra
     </div>
   );
 });
+
+function VirtualRow({ index, style, data }: ListChildComponentProps<{ items: Transaction[]; setOpenTx: (t: Transaction) => void; formatAmount: (a: string, c?: string) => string }>) {
+  const t = data.items[index];
+  return (
+    <div style={style}>
+      <TransactionRow transaction={t} onClick={() => data.setOpenTx(t)} formatAmount={data.formatAmount} />
+    </div>
+  );
+}
 
