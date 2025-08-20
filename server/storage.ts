@@ -71,7 +71,7 @@ export class MemStorage implements IStorage {
     this.cards.set(disposableCard.id, disposableCard);
 
     // Create transactions based on screenshots
-    const transactions: Omit<Transaction, 'id'>[] = [
+    const transactions: any[] = [
       {
         userId: thomasId,
         merchant: "GitHub",
@@ -390,9 +390,24 @@ export class MemStorage implements IStorage {
       },
     ];
 
-    transactions.forEach(transaction => {
+    transactions.forEach((t: any) => {
       const id = randomUUID();
-      this.transactions.set(id, { ...transaction, id });
+      const tx: Transaction = {
+        id,
+        userId: t.userId,
+        merchant: t.merchant,
+        amount: t.amount,
+        currency: t.currency ?? 'AUD',
+        originalAmount: t.originalAmount ?? null,
+        originalCurrency: t.originalCurrency ?? null,
+        category: t.category,
+        status: t.status ?? 'completed',
+        description: (t.description ?? null) as string | null,
+        date: t.date,
+        merchantIcon: (t.merchantIcon ?? null) as string | null,
+        iconColor: (t.iconColor ?? null) as string | null,
+      };
+      this.transactions.set(id, tx);
     });
 
     // Create crypto assets
@@ -433,6 +448,7 @@ export class MemStorage implements IStorage {
         name: "0x Protocol",
         price: "0.45",
         change24h: "23.44",
+        chartData: [],
         icon: "0x",
       },
       {
@@ -441,6 +457,7 @@ export class MemStorage implements IStorage {
         name: "Polygon",
         price: "1.23",
         change24h: "4.14",
+        chartData: [],
         icon: "⬟",
       },
       {
@@ -449,6 +466,7 @@ export class MemStorage implements IStorage {
         name: "Polkadot",
         price: "8.92",
         change24h: "4.10",
+        chartData: [],
         icon: "●",
       },
       {
@@ -457,6 +475,7 @@ export class MemStorage implements IStorage {
         name: "Golem",
         price: "0.34",
         change24h: "3.40",
+        chartData: [],
         icon: "G",
       },
       {
@@ -465,6 +484,7 @@ export class MemStorage implements IStorage {
         name: "Amp",
         price: "0.012",
         change24h: "3.19",
+        chartData: [],
         icon: "A",
       },
       {
@@ -473,6 +493,7 @@ export class MemStorage implements IStorage {
         name: "Qtum",
         price: "4.56",
         change24h: "2.64",
+        chartData: [],
         icon: "Q",
       },
       {
@@ -481,6 +502,7 @@ export class MemStorage implements IStorage {
         name: "Cronos",
         price: "0.18",
         change24h: "2.39",
+        chartData: [],
         icon: "C",
       },
       {
@@ -489,6 +511,7 @@ export class MemStorage implements IStorage {
         name: "Adventure Gold",
         price: "2.34",
         change24h: "2.36",
+        chartData: [],
         icon: "L",
       },
     ];
@@ -510,7 +533,18 @@ export class MemStorage implements IStorage {
 
   async createUser(insertUser: InsertUser): Promise<User> {
     const id = randomUUID();
-    const user: User = { ...insertUser, id, createdAt: new Date() };
+    const user: User = {
+      id,
+      username: insertUser.username,
+      firstName: insertUser.firstName,
+      lastName: insertUser.lastName,
+      email: insertUser.email,
+      avatar: insertUser.avatar ?? null,
+      balance: insertUser.balance ?? '0.00',
+      currency: insertUser.currency ?? 'AUD',
+      plan: insertUser.plan ?? 'Personal',
+      createdAt: new Date(),
+    };
     this.users.set(id, user);
     return user;
   }
@@ -523,7 +557,22 @@ export class MemStorage implements IStorage {
 
   async createTransaction(insertTransaction: InsertTransaction): Promise<Transaction> {
     const id = randomUUID();
-    const transaction: Transaction = { ...insertTransaction, id, date: new Date() };
+    const it: any = insertTransaction as any;
+    const transaction: Transaction = {
+      id,
+      userId: insertTransaction.userId,
+      merchant: insertTransaction.merchant,
+      amount: insertTransaction.amount,
+      currency: it.currency ?? 'AUD',
+      originalAmount: it.originalAmount ?? null,
+      originalCurrency: it.originalCurrency ?? null,
+      category: insertTransaction.category,
+      status: it.status ?? 'completed',
+      description: it.description ?? null,
+      date: new Date(),
+      merchantIcon: it.merchantIcon ?? null,
+      iconColor: it.iconColor ?? null,
+    };
     this.transactions.set(id, transaction);
     return transaction;
   }
@@ -535,7 +584,16 @@ export class MemStorage implements IStorage {
 
   async createCard(insertCard: InsertCard): Promise<Card> {
     const id = randomUUID();
-    const card: Card = { ...insertCard, id, createdAt: new Date() };
+    const card: Card = {
+      id,
+      userId: insertCard.userId,
+      type: insertCard.type,
+      name: insertCard.name,
+      lastFour: insertCard.lastFour,
+      isActive: insertCard.isActive ?? true,
+      description: insertCard.description ?? null,
+      createdAt: new Date(),
+    };
     this.cards.set(id, card);
     return card;
   }

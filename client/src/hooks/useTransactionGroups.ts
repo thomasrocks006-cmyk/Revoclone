@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import type { Transaction, TransactionGroup } from '@/types/transaction';
+import { isTransactionExcluded } from '@/lib/analytics';
 
 export const useTransactionGroups = (transactions: Transaction[]): TransactionGroup[] => {
   return useMemo(() => {
@@ -26,6 +27,7 @@ export const useTransactionGroups = (transactions: Transaction[]): TransactionGr
 
 function calculateDayTotal(items: Transaction[]): number {
   return items.reduce((sum, t) => {
+    if (isTransactionExcluded(t.id)) return sum;
     if (t.status === 'reverted' || t.status === 'card_verification') return sum;
     return sum + parseFloat(t.amount);
   }, 0);
