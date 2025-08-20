@@ -320,7 +320,7 @@ export default function Home() {
             </>
           )}
 
-          <Link href="/payments">
+          <Link href="/transactions">
             <Button className="mt-6 w-full h-10 rounded-lg text-[15px] text-white/90 bg-transparent hover:bg-white/10 transition">
               See all
             </Button>
