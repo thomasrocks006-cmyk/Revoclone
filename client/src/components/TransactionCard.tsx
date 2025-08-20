@@ -29,7 +29,7 @@ export default function TransactionCard({ transaction, className = "" }: Transac
         <div className="flex items-center gap-3">
           <MerchantIcon 
             merchant={transaction.merchant} 
-            iconColor={transaction.iconColor}
+            iconColor={transaction.iconColor ?? undefined}
           />
           <div>
             <p className="text-white font-medium" data-testid="transaction-merchant">
