@@ -8,7 +8,6 @@ export interface Transaction {
   status: 'completed' | 'reverted' | 'failed' | 'insufficient_balance' | 'card_verification' | 'delayed_transaction' | '';
   description: string;
   secondary: string;
-  category?: string;
   location?: {
     lat: number;
     lon: number;
