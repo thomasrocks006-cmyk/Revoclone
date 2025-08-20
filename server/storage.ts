@@ -392,7 +392,22 @@ export class MemStorage implements IStorage {
 
     transactions.forEach(transaction => {
       const id = randomUUID();
-      this.transactions.set(id, { ...transaction, id });
+      const withDefaults: Transaction = {
+        id,
+        userId: transaction.userId,
+        merchant: transaction.merchant,
+        amount: transaction.amount,
+        currency: transaction.currency,
+        originalAmount: transaction.originalAmount ?? null,
+        originalCurrency: transaction.originalCurrency ?? null,
+        category: transaction.category,
+        status: transaction.status,
+        description: (transaction as any).description ?? null,
+        date: transaction.date,
+        merchantIcon: (transaction as any).merchantIcon ?? null,
+        iconColor: (transaction as any).iconColor ?? null,
+      };
+      this.transactions.set(id, withDefaults);
     });
 
     // Create crypto assets
@@ -433,6 +448,7 @@ export class MemStorage implements IStorage {
         name: "0x Protocol",
         price: "0.45",
         change24h: "23.44",
+        chartData: [],
         icon: "0x",
       },
       {
@@ -441,6 +457,7 @@ export class MemStorage implements IStorage {
         name: "Polygon",
         price: "1.23",
         change24h: "4.14",
+        chartData: [],
         icon: "⬟",
       },
       {
@@ -449,6 +466,7 @@ export class MemStorage implements IStorage {
         name: "Polkadot",
         price: "8.92",
         change24h: "4.10",
+        chartData: [],
         icon: "●",
       },
       {
@@ -457,6 +475,7 @@ export class MemStorage implements IStorage {
         name: "Golem",
         price: "0.34",
         change24h: "3.40",
+        chartData: [],
         icon: "G",
       },
       {
@@ -465,6 +484,7 @@ export class MemStorage implements IStorage {
         name: "Amp",
         price: "0.012",
         change24h: "3.19",
+        chartData: [],
         icon: "A",
       },
       {
@@ -473,6 +493,7 @@ export class MemStorage implements IStorage {
         name: "Qtum",
         price: "4.56",
         change24h: "2.64",
+        chartData: [],
         icon: "Q",
       },
       {
@@ -481,6 +502,7 @@ export class MemStorage implements IStorage {
         name: "Cronos",
         price: "0.18",
         change24h: "2.39",
+        chartData: [],
         icon: "C",
       },
       {
@@ -489,6 +511,7 @@ export class MemStorage implements IStorage {
         name: "Adventure Gold",
         price: "2.34",
         change24h: "2.36",
+        chartData: [],
         icon: "L",
       },
     ];
