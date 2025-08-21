@@ -32,40 +32,52 @@ export default function Transactions() {
   return (
     <ErrorBoundary>
       <div className="min-h-screen bg-black text-white" data-testid="transactions-screen">
-        <div className="w-full max-w-[390px] mx-auto px-[18px] pb-24" style={{ paddingTop: "max(env(safe-area-inset-top), 10px)" }}>
-          <div className="flex items-center gap-3">
-            <button className="w-10 h-10 text-white -ml-2 flex items-center justify-center rounded-lg hover:bg-white/10 transition-colors">
+        {/* Removed max-width constraint and reduced padding for fuller screen usage */}
+        <div className="w-full px-3 pb-24" style={{ paddingTop: "max(env(safe-area-inset-top), 20px)" }}>
+          {/* Header */}
+          <div className="flex items-center gap-3 mb-4">
+            <button className="w-10 h-10 text-white flex items-center justify-center rounded-lg hover:bg-white/10 transition-colors">
               <ArrowLeft className="w-6 h-6" />
             </button>
-            <div className="flex-1 text-center text-2xl font-bold -ml-8">Transactions</div>
+            <div className="flex-1 text-center text-2xl font-bold -ml-10">Transactions</div>
             <div className="w-10" />
           </div>
 
-          <div className="mt-3">
+          {/* Search Bar */}
+          <div className="mb-4">
             <SearchBar value={searchTerm} onChange={setSearchTerm} hasActiveSearch={hasActiveSearch} />
           </div>
 
-          <div className="mt-3 flex items-center justify-center gap-8 text-[15px]">
-            <span className="text-[#9AA3B2]">November 2023</span>
-            <span className="text-[#9AA3B2]">June</span>
-            <span className="px-4 h-8 rounded-full grid place-items-center" style={{ background: "#232730" }}>July</span>
-            <span className="text-[#9AA3B2]">August</span>
+          {/* Month selector */}
+          <div className="mb-5 flex items-center justify-center gap-6 text-[15px]">
+            <span className="text-gray-500">November 2023</span>
+            <span className="text-gray-500">June</span>
+            <span className="px-4 h-8 rounded-full grid place-items-center bg-gray-800">July</span>
+            <span className="text-gray-500">August</span>
           </div>
 
-          <div className="mt-5 space-y-8">
+          {/* Transaction Groups */}
+          <div className="space-y-6">
             {groups.map(({ key, label, items, total }) => (
               <section key={key}>
-                <div className="flex items-baseline justify-between px-1 mb-2">
+                {/* Group header with date and total */}
+                <div className="flex items-baseline justify-between px-2 mb-3">
                   <div className="text-[17px] font-semibold">{label}</div>
                   <div className="text-[15px] text-white" style={{ fontVariantNumeric: "tabular-nums" }}>
                     {formatAmount(total.toString())}
                   </div>
                 </div>
 
-                <div className="rounded-3xl p-3" style={{ background: "#181A1F", boxShadow: "inset 0 1px 0 rgba(255,255,255,.06)" }}>
-                  <div className="space-y-2">
+                {/* Transaction card - darker background and less rounded */}
+                <div className="rounded-2xl p-2" style={{ background: "#0A0B0D" }}>
+                  <div className="space-y-0.5">
                     {items.map((transaction) => (
-                      <TransactionRow key={transaction.id} transaction={transaction} onClick={() => setOpenTx(transaction)} formatAmount={formatAmount} />
+                      <TransactionRow 
+                        key={transaction.id} 
+                        transaction={transaction} 
+                        onClick={() => setOpenTx(transaction)} 
+                        formatAmount={formatAmount} 
+                      />
                     ))}
                   </div>
                 </div>
@@ -80,44 +92,75 @@ export default function Transactions() {
   );
 }
 
-const TransactionRow = React.memo(({ transaction, onClick, formatAmount }: { transaction: Transaction; onClick: () => void; formatAmount: (amount: string, currency?: string) => string; }) => {
+const TransactionRow = React.memo(({ 
+  transaction, 
+  onClick, 
+  formatAmount 
+}: { 
+  transaction: Transaction; 
+  onClick: () => void; 
+  formatAmount: (amount: string, currency?: string) => string; 
+}) => {
   const amount = parseFloat(transaction.amount);
   const isReverted = transaction.status === "reverted";
   const isCV = transaction.status === "card_verification";
 
-  const primaryColor = isReverted ? "rgba(255,255,255,.7)" : amount > 0 ? "#22C55E" : amount < 0 ? "#EF4444" : "#FFFFFF";
+  const primaryColor = isReverted ? "rgba(255,255,255,.7)" : amount > 0 ? "#22C55E" : amount < 0 ? "#FFFFFF" : "#FFFFFF";
   const primaryText = formatAmount(transaction.amount, transaction.currency);
 
-  const timeText = new Date(transaction.date).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false });
+  const timeText = new Date(transaction.date).toLocaleTimeString("en-GB", { 
+    hour: "2-digit", 
+    minute: "2-digit", 
+    hour12: false 
+  });
+  
   const subs: string[] = [timeText];
-
   if (transaction.status === "reverted") subs.push("Reverted");
   if (transaction.status === "card_verification") subs.push("Card verification");
   if (transaction.status === "delayed_transaction") subs.push("Delayed transaction");
 
   return (
-    <div className="flex items-center rounded-xl hover:bg-white/5 active:bg-white/10 transition px-3 py-3 cursor-pointer" onClick={onClick} role="button" tabIndex={0} aria-label={`Open details for ${transaction.merchant}`} onKeyDown={(e) => e.key === 'Enter' && onClick()}>
+    <div 
+      className="flex items-center rounded-xl hover:bg-white/5 active:bg-white/10 transition px-3 py-3 cursor-pointer" 
+      onClick={onClick} 
+      role="button" 
+      tabIndex={0} 
+      aria-label={`Open details for ${transaction.merchant}`}
+      onKeyDown={(e) => e.key === 'Enter' && onClick()}
+    >
       <div className="mr-3">
         <TransactionIcon transaction={transaction} />
       </div>
 
       <div className="flex-1 min-w-0">
-        <div className="text-[16px] font-semibold leading-tight truncate">{transaction.merchant}</div>
-        <div className="text-[13px] text-white/60">
+        <div className="text-[16px] font-medium leading-tight truncate text-white">
+          {transaction.merchant}
+        </div>
+        <div className="text-[13px] text-gray-500">
           {subs.join(" · ")}
-          {transaction.description && <div className="text-[13px] text-white/60">{transaction.description}</div>}
+          {transaction.description && (
+            <div className="text-[13px] text-gray-500">{transaction.description}</div>
+          )}
         </div>
       </div>
 
       <div className="ml-3 text-right">
         {!isCV && (
-          <div className="text-[16px]" style={{ color: primaryColor, textDecoration: isReverted ? "line-through" : "none", fontVariantNumeric: "tabular-nums" }}>
+          <div 
+            className="text-[16px] font-medium" 
+            style={{ 
+              color: primaryColor, 
+              textDecoration: isReverted ? "line-through" : "none", 
+              fontVariantNumeric: "tabular-nums" 
+            }}
+          >
             {primaryText}
           </div>
         )}
-        {transaction.secondary && <div className="text-[12px] text-[#6B7280]">{transaction.secondary}</div>}
+        {transaction.secondary && (
+          <div className="text-[12px] text-gray-500">{transaction.secondary}</div>
+        )}
       </div>
     </div>
   );
 });
-
