@@ -1,19 +1,20 @@
-import { useLocation, Link } from "wouter";
-import {
-  TrendingUp,
-  ArrowLeftRight,
-  Bitcoin,
-  Heart
-} from "lucide-react";
+// components/BottomNavigation.tsx
+import { Link, useLocation } from "wouter";
+import { TrendingUp, ArrowLeftRight, Bitcoin, Heart } from "lucide-react";
+import React from "react";
 
+/** Revolut-style "R" icon (vector, currentColor-driven) */
 function RevolutRIcon(props: React.SVGProps<SVGSVGElement>) {
-  // Simple mono "R" mark approximation
+  // Uses a 24x24 viewBox to match lucide sizing; your tailwind w-7 h-7 scales it to 28px
   return (
-    <svg viewBox="0 0 32 32" aria-hidden="true" {...props}>
-      <path
-        d="M13.8 5.5c4.5 0 7.7 2.7 7.7 6.6 0 2.3-1.1 4.1-3 5.1l3.5 4.8c.3.5.1 1.0-.5 1.0h-3.5c-.4 0-.7-.2-.9-.5l-3-4.3h-2.2v4.3c0 .4-.3.7-.7.7H7.4c-.4 0-.7-.3-.7-.7V6.2c0-.4.3-.7.7-.7h6.4Zm-.6 3.7H11v5h2.2c2 0 3.2-1 3.2-2.5 0-1.6-1.2-2.5-3.2-2.5Z"
-        fill="currentColor"
-      />
+    <svg
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+      focusable="false"
+      fill="currentColor"
+      {...props}
+    >
+      <path d="M6 4h7.5c2.9 0 5 2 5 5 0 2.1-1.1 3.6-2.8 4.3l2.9 6.7h-3.4l-2.6-6H9.5v6H6V4Zm7.1 6c1.1 0 1.9-.7 1.9-1.7S14.2 6.5 13.1 6.5H9.5V10h3.6Z" />
     </svg>
   );
 }
@@ -44,14 +45,12 @@ export default function BottomNavigation() {
       data-testid="bottom-navigation"
       role="navigation"
     >
-      {navItems.map(item => {
-        const Icon = item.icon as any;
-        const isActive = location === item.path;
-
+      {navItems.map(({ path, label, icon: Icon }) => {
+        const isActive = location === path;
         return (
           <Link
-            key={item.path}
-            href={item.path}
+            key={path}
+            href={path}
             aria-current={isActive ? "page" : undefined}
             className="
               group flex flex-col items-center justify-center
@@ -60,7 +59,7 @@ export default function BottomNavigation() {
               py-1
               active:scale-95 transition-transform
             "
-            data-testid={`nav-${item.label.toLowerCase()}`}
+            data-testid={`nav-${label.toLowerCase()}`}
           >
             <Icon
               className={`
@@ -74,7 +73,7 @@ export default function BottomNavigation() {
                 ${isActive ? "text-white font-medium" : "text-[#D6D8DF]/70"}
               `}
             >
-              {item.label}
+              {label}
             </span>
           </Link>
         );
