@@ -98,9 +98,9 @@ export default function Home() {
       secondary: "··4103",
       gradientKey: "original",
       href: "/cards/original",
-      showAlertDot: true, // Re-enabled to match the target screenshot
+      showAlertDot: true,
       showMastercard: true,
-      ring: true, // Keep the orbit animation
+      ring: true,
     },
     {
       id: "disposable",
@@ -166,9 +166,10 @@ export default function Home() {
           </div>
         </div>
 
+        {/* Center stack with measured spacing */}
         <div className="relative z-10 pt-12 pb-2 flex flex-col items-center select-none">
           <div
-            className="text-white/65 text-[12px] mb-3"
+            className="text-white/65 text-[12px] mb-[38px]"
             data-testid="text-account-type"
           >
             Personal · AUD
@@ -183,12 +184,13 @@ export default function Home() {
               .{cents}
             </span>
           </div>
-          <Button className="mt-4 h-[36px] px-6 rounded-full bg-[#5864A5]/60 border border-white/15 shadow-md text-white/90 text-[14px]">
+          <Button className="mt-[19px] h-[38px] w-[85px] rounded-full bg-[#5864A5]/60 border border-white/15 shadow-md text-white/90 text-[14px]">
             Accounts
           </Button>
         </div>
 
-        <div className="relative z-10 py-3 flex items-center justify-center">
+        {/* Dots: keep same visual; position by measured gaps */}
+        <div className="relative z-10 mt-[54px] mb-[43px] flex items-center justify-center">
           <div className="flex items-center gap-1.5">
             <span className="w-1 h-1 rounded-full bg-white/40 inline-block" />
             <span className="w-1 h-1 rounded-full bg-white inline-block" />
@@ -196,9 +198,9 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Quick Actions */}
-      <div className="px-6 pt-2 -mt-[120px] relative z-10">
-        <div className="grid grid-cols-4 gap-8 text-center">
+      {/* Quick Actions positioned/ spaced to match SVG */}
+      <div className="px-6 -mt-[187px] relative z-10">
+        <div className="w-[313px] mx-auto grid grid-cols-4 gap-[35px] text-center">
           {[
             { key: "add", label: "Add money", icon: <Plus className="w-[20px] h-[20px]" /> },
             { key: "payid", label: "PayID", icon: <span className="text-[12px] font-black">iD</span> },
@@ -215,8 +217,8 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Recent Transactions */}
-      <section className="px-4 mt-7">
+      {/* Recent Transactions (gap below actions = 36px) */}
+      <section className="px-4 mt-[36px]">
         <div className="rounded-[22px] bg-[#0F1224]/95 backdrop-blur-md p-4 shadow-[0_12px_28px_rgba(0,0,0,0.45)]">
           {transactionsLoading && (
             <>
@@ -328,7 +330,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Cards Widget - Now matches our version 22 design */}
+      {/* Cards Widget - unchanged */}
       <RevolutCardsWidget cards={cards} />
 
       {/* Total Wealth */}
