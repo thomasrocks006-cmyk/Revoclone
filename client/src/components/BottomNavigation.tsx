@@ -1,6 +1,6 @@
 // components/BottomNavigation.tsx
 import { useLocation, Link } from "wouter";
-import { ArrowLeftRight, Bitcoin, Heart } from "lucide-react";
+import { ArrowLeftRight } from "lucide-react";
 import React from "react";
 
 /** Revolut-style "R" icon (inline SVG, inherits currentColor) */
@@ -46,109 +46,74 @@ export default function BottomNavigation() {
   const [location] = useLocation();
   
   const navItems = [
-    { path: "/", label: "Home", icon: RevolutRIcon },
-    { path: "/invest", label: "Invest", icon: InvestIcon },
-    { path: "/transactions", label: "Payments", icon: ArrowLeftRight },
-    { path: "/crypto", label: "Crypto", icon: Bitcoin },
-    { path: "/lifestyle", label: "Lifestyle", icon: Heart },
+    { path: "/", label: "Home", icon: RevolutRIcon, isComponent: true },
+    { path: "/invest", label: "Invest", icon: InvestIcon, isComponent: true },
+    { path: "/transactions", label: "Payments", icon: ArrowLeftRight, isComponent: true },
+    { path: "/crypto", label: "Crypto", icon: "₿", isComponent: false },
+    { path: "/lifestyle", label: "Lifestyle", icon: "⚏", isComponent: false },
   ];
 
   return (
-    <>
-      {/* Global styles for the gradient circle glow effect */}
-      <style>{`
-        .nav-glow-item {
-          position: relative;
-        }
+    <nav
+      className="
+        fixed bottom-0 left-0 right-0 z-50
+        flex items-center justify-between
+        px-6
+        [height:calc(64px+env(safe-area-inset-bottom))]
+        pb-[max(12px,env(safe-area-inset-bottom))]
+        backdrop-blur-md
+        border-t border-white/10
+      "
+      style={{
+        background: 'linear-gradient(145deg, rgba(37, 37, 56, 0.85) 0%, rgba(26, 26, 46, 0.85) 100%)',
+        boxShadow: '0 -15px 35px rgba(0, 0, 0, 0.5)',
+      }}
+      data-testid="bottom-navigation"
+      role="navigation"
+    >
+      {navItems.map((item) => {
+        const isActive = location === item.path;
         
-        .nav-glow-item::before {
-          content: '';
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          width: 0;
-          height: 0;
-          border-radius: 50%;
-          background: radial-gradient(
-            circle, 
-            rgba(99, 102, 241, 0.3) 0%, 
-            rgba(236, 72, 153, 0.3) 100%
-          );
-          transition: all 0.3s ease;
-          z-index: -1;
-          pointer-events: none;
-        }
-        
-        .nav-glow-item:hover::before {
-          width: 60px;
-          height: 60px;
-        }
-        
-        .nav-glow-item:hover .nav-icon {
-          transform: scale(1.1);
-        }
-        
-        .nav-glow-item .nav-icon {
-          transition: transform 0.3s ease;
-        }
-      `}</style>
-      
-      <nav
-        className="
-          fixed bottom-0 left-0 right-0 z-50
-          flex items-center justify-between
-          px-6
-          [height:calc(64px+env(safe-area-inset-bottom))]
-          pb-[max(12px,env(safe-area-inset-bottom))]
-          backdrop-blur-md
-          border-t border-white/10
-        "
-        style={{
-          background: 'linear-gradient(145deg, #252538 0%, #1a1a2e 100%)',
-          boxShadow: '0 15px 35px rgba(0, 0, 0, 0.5)',
-        }}
-        data-testid="bottom-navigation"
-        role="navigation"
-      >
-        {navItems.map((item) => {
-          const Icon = item.icon as any;
-          const isActive = location === item.path;
-          
-          return (
-            <Link
-              key={item.path}
-              href={item.path}
-              aria-current={isActive ? "page" : undefined}
-              className="
-                nav-glow-item
-                group flex flex-col items-center justify-center
-                gap-1
-                min-w-[56px]
-                py-1
-                relative
-              "
-              data-testid={`nav-${item.label.toLowerCase()}`}
+        return (
+          <Link
+            key={item.path}
+            href={item.path}
+            aria-current={isActive ? "page" : undefined}
+            className={`
+              group flex flex-col items-center justify-center
+              gap-1
+              min-w-[56px]
+              py-1
+              relative
+              transition-all duration-300
+              ${isActive ? "text-white" : "text-[#7d849b] hover:text-white"}
+            `}
+            data-testid={`nav-${item.label.toLowerCase()}`}
+          >
+            <div className={`
+              w-7 h-7 flex items-center justify-center
+              text-2xl font-medium
+              transition-all duration-300
+              group-hover:scale-110
+              ${isActive ? "[filter:drop-shadow(0_0_6px_rgba(255,255,255,0.3))]" : "group-hover:[filter:drop-shadow(0_0_8px_rgba(99,102,241,0.5))]"}
+            `}>
+              {item.isComponent ? (
+                <item.icon className="w-7 h-7" />
+              ) : (
+                item.icon
+              )}
+            </div>
+            <span
+              className={`
+                text-[13px] leading-none
+                ${isActive ? "font-medium" : ""}
+              `}
             >
-              <Icon
-                className={`
-                  nav-icon
-                  w-7 h-7
-                  ${isActive ? "text-white" : "text-[#7d849b] group-hover:text-white"}
-                `}
-              />
-              <span
-                className={`
-                  text-[13px] leading-none transition-colors duration-300
-                  ${isActive ? "text-white font-medium" : "text-[#7d849b] group-hover:text-white"}
-                `}
-              >
-                {item.label}
-              </span>
-            </Link>
-          );
-        })}
-      </nav>
-    </>
+              {item.label}
+            </span>
+          </Link>
+        );
+      })}
+    </nav>
   );
 }
