@@ -79,9 +79,9 @@ export default function Home() {
 
   // Derive initials for avatar
   const initials =
-    (user?.name ?? "TF")
+    (user ? `${user.firstName} ${user.lastName}` : "TF")
       .split(" ")
-      .map((s) => s[0])
+      .map((s: string) => s[0])
       .join("")
       .slice(0, 2)
       .toUpperCase() || "TF";
@@ -125,13 +125,13 @@ export default function Home() {
       {/* Sapphire Silk gradient header - Ultra-smooth transition */}
       <div
         className="relative"
-        style={{ height: 460 }}
+        style={{ height: 580 }}
       >
         <div
           className="absolute inset-0"
           style={{
             background:
-              "linear-gradient(180deg, #1e40af 0%, #1c3da8 4%, #1a3aa1 8%, #18379a 12%, #163493 16%, #14318c 20%, #122e85 24%, #102b7e 28%, #0e2877 32%, #0c2570 36%, #0a2269 40%, #081f62 44%, #071c5b 48%, #061954 52%, #05164d 56%, #041346 60%, #03103f 64%, #020d38 68%, #020a31 72%, #01082a 76%, #010623 80%, #01041c 84%, #010315 88%, #00020e 92%, #000107 96%, #000000 100%)",
+              "linear-gradient(180deg, #1e40af 0%, #1c3da8 4%, #1a3aa1 8%, #18379a 12%, #163493 16%, #14318c 20%, #122e85 24%, #102b7e 28%, #0e2877 32%, #0c2570 36%, #0a2269 40%, #081f62 44%, #071c5b 48%, #061954 52%, #05164d 56%, #041346 60%, #03103f 64%, #020d38 68%, #020a31 72%, #01082a 76%, #010623 80%, #01041c 84%, #010315 88%, #00020e 92%, #000107 96%, rgba(0,0,0,0.9) 97%, rgba(0,0,0,0.7) 98%, rgba(0,0,0,0.5) 98.5%, rgba(0,0,0,0.3) 99%, rgba(0,0,0,0.1) 99.5%, transparent 100%)",
           }}
         />
         <div className="relative z-10 px-3 pt-3">
@@ -197,7 +197,7 @@ export default function Home() {
       </div>
 
       {/* Quick Actions */}
-      <div className="px-6 pt-2">
+      <div className="px-6 pt-2 -mt-[120px] relative z-10">
         <div className="grid grid-cols-4 gap-8 text-center">
           {[
             { key: "add", label: "Add money", icon: <Plus className="w-[20px] h-[20px]" /> },
