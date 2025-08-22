@@ -1,3 +1,4 @@
+// --- BEGIN HOME COMPONENT (Uizard-measured layout) ---
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
@@ -90,7 +91,7 @@ export default function Home() {
   const balance = 2.19;
   const [whole, cents] = balance.toFixed(2).split(".");
 
-  // Cards configuration - Mobile optimized to match target screenshot
+  // Cards configuration
   const cards: CardData[] = [
     {
       id: "original",
@@ -118,15 +119,9 @@ export default function Home() {
   ];
 
   return (
-    <div
-      className="min-h-screen text-white"
-      data-testid="home-screen"
-    >
-      {/* Sapphire Silk gradient header - Ultra-smooth transition */}
-      <div
-        className="relative"
-        style={{ height: 580 }}
-      >
+    <div className="min-h-screen text-white" data-testid="home-screen">
+      {/* Header gradient */}
+      <div className="relative" style={{ height: 580 }}>
         <div
           className="absolute inset-0"
           style={{
@@ -134,6 +129,8 @@ export default function Home() {
               "linear-gradient(180deg, #1e40af 0%, #1c3da8 4%, #1a3aa1 8%, #18379a 12%, #163493 16%, #14318c 20%, #122e85 24%, #102b7e 28%, #0e2877 32%, #0c2570 36%, #0a2269 40%, #081f62 44%, #071c5b 48%, #061954 52%, #05164d 56%, #041346 60%, #03103f 64%, #020d38 68%, #020a31 72%, #01082a 76%, #010623 80%, #01041c 84%, #010315 88%, #00020e 92%, #000107 96%, rgba(0,0,0,0.9) 97%, rgba(0,0,0,0.7) 98%, rgba(0,0,0,0.5) 98.5%, rgba(0,0,0,0.3) 99%, rgba(0,0,0,0.1) 99.5%, transparent 100%)",
           }}
         />
+
+        {/* Top bar */}
         <div className="relative z-10 px-3 pt-3">
           <div className="flex items-center gap-2">
             <div className="relative w-9 h-9 rounded-full bg-[#F59E0B] grid place-items-center shadow-sm">
@@ -166,7 +163,7 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Center stack with measured spacing */}
+        {/* Center stack (measured) */}
         <div className="relative z-10 pt-12 pb-2 flex flex-col items-center select-none">
           <div
             className="text-white/65 text-[12px] mb-[38px]"
@@ -189,7 +186,7 @@ export default function Home() {
           </Button>
         </div>
 
-        {/* Dots: keep same visual; position by measured gaps */}
+        {/* Dots positioned by measured gaps (visuals unchanged) */}
         <div className="relative z-10 mt-[54px] mb-[43px] flex items-center justify-center">
           <div className="flex items-center gap-1.5">
             <span className="w-1 h-1 rounded-full bg-white/40 inline-block" />
@@ -198,8 +195,8 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Quick Actions positioned/ spaced to match SVG */}
-      <div className="px-6 -mt-[187px] relative z-10">
+      {/* Quick Actions: exact row width 313px, center spacing ≈87px */}
+      <div className="-mt-[187px] relative z-10">
         <div className="w-[313px] mx-auto grid grid-cols-4 gap-[35px] text-center">
           {[
             { key: "add", label: "Add money", icon: <Plus className="w-[20px] h-[20px]" /> },
@@ -217,31 +214,64 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Recent Transactions (gap below actions = 36px) */}
-      <section className="px-4 mt-[36px]">
-        <div className="rounded-[22px] bg-[#0F1224]/95 backdrop-blur-md p-4 shadow-[0_12px_28px_rgba(0,0,0,0.45)]">
-          {transactionsLoading && (
-            <>
-              <Skeleton className="h-12 mb-3" />
-              <Skeleton className="h-12" />
-            </>
-          )}
+      {/* Shared content wrapper: normalize width to match Uizard (350px) */}
+      <div className="w-full max-w-[350px] mx-auto">
+        {/* Recent Transactions: measured gap below actions = 36px */}
+        <section className="mt-[36px]">
+          <div className="rounded-[22px] bg-[#0F1224]/95 backdrop-blur-md p-4 shadow-[0_12px_28px_rgba(0,0,0,0.45)]">
+            {transactionsLoading && (
+              <>
+                <Skeleton className="h-12 mb-3" />
+                <Skeleton className="h-12" />
+              </>
+            )}
 
-          {!transactionsLoading && !txError && recentTransactions.length > 0 && (
-            recentTransactions.map((t, idx) => {
-              const name =
-                "merchant" in t ? ((t as any).merchant ?? "Payment") : "Payment";
-              const sub = [
-                formatDate((t as any).createdAt ?? Date.now()),
-                ("status" in t && (t as any).status) ? (t as any).status : "",
-              ]
-                .filter(Boolean)
-                .join(" · ");
-              const amountNum = Number((t as any).amount ?? 0);
-              const negative = amountNum < 0;
+            {!transactionsLoading && !txError && recentTransactions.length > 0 && (
+              recentTransactions.map((t, idx) => {
+                const name =
+                  "merchant" in t ? ((t as any).merchant ?? "Payment") : "Payment";
+                const sub = [
+                  formatDate((t as any).createdAt ?? Date.now()),
+                  ("status" in t && (t as any).status) ? (t as any).status : "",
+                ]
+                  .filter(Boolean)
+                  .join(" · ");
+                const amountNum = Number((t as any).amount ?? 0);
+                const negative = amountNum < 0;
 
-              return (
-                <div key={idx} className={`flex items-center ${idx === 0 ? "" : "mt-6"}`}>
+                return (
+                  <div key={idx} className={`flex items-center ${idx === 0 ? "" : "mt-6"}`}>
+                    <div className="relative w-[36px] h-[36px] rounded-full bg-black grid place-items-center">
+                      <div className="w-2.5 h-2.5 rounded-full bg-white" />
+                      <span className="absolute -bottom-1 -right-1 w-4 h-4 bg-[#10182A] rounded-full grid place-items-center">
+                        <svg viewBox="0 0 24 24" className="w-3 h-3" fill="currentColor">
+                          <path d="M7 12h10M12 7l5 5-5 5" />
+                        </svg>
+                      </span>
+                    </div>
+                    <div className="ml-3 flex-1">
+                      <div className="text-[16px] font-semibold leading-tight">{name}</div>
+                      <div className="text-[13px] text-white/65">{sub}</div>
+                    </div>
+                    <div className="text-[15px] tabular-nums text-right min-w-[76px] pr-2">
+                      {negative ? (
+                        <span className="text-[#ff6b6b]">
+                          -{AUD.format(Math.abs(amountNum)).replace("A$", "$")}
+                        </span>
+                      ) : (
+                        <span className="text-white/95">
+                          {AUD.format(amountNum).replace("A$", "$")}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })
+            )}
+
+            {!transactionsLoading && !txError && recentTransactions.length === 0 && (
+              <>
+                <div className="flex items-center">
                   <div className="relative w-[36px] h-[36px] rounded-full bg-black grid place-items-center">
                     <div className="w-2.5 h-2.5 rounded-full bg-white" />
                     <span className="absolute -bottom-1 -right-1 w-4 h-4 bg-[#10182A] rounded-full grid place-items-center">
@@ -249,229 +279,164 @@ export default function Home() {
                         <path d="M7 12h10M12 7l5 5-5 5" />
                       </svg>
                     </span>
-                  </div>
+                    </div>
                   <div className="ml-3 flex-1">
-                    <div className="text-[16px] font-semibold leading-tight">{name}</div>
-                    <div className="text-[13px] text-white/65">{sub}</div>
+                    <div className="text-[16px] font-semibold leading-tight">
+                      GitHub
+                    </div>
+                    <div className="text-[13px] text-white/65">
+                      17 Aug, 04:25 · Reverted
+                    </div>
                   </div>
                   <div className="text-[15px] tabular-nums text-right min-w-[76px] pr-2">
-                    {negative ? (
-                      <span className="text-[#ff6b6b]">
-                        -{AUD.format(Math.abs(amountNum)).replace("A$", "$")}
-                      </span>
-                    ) : (
-                      <span className="text-white/95">
-                        {AUD.format(amountNum).replace("A$", "$")}
-                      </span>
-                    )}
+                    <span className="text-white/95">
+                      {AUD.format(1.55).replace("A$", "$")}
+                    </span>
                   </div>
                 </div>
-              );
-            })
-          )}
 
-          {!transactionsLoading && !txError && recentTransactions.length === 0 && (
-            <>
-              <div className="flex items-center">
-                <div className="relative w-[36px] h-[36px] rounded-full bg-black grid place-items-center">
-                  <div className="w-2.5 h-2.5 rounded-full bg-white" />
-                  <span className="absolute -bottom-1 -right-1 w-4 h-4 bg-[#10182A] rounded-full grid place-items-center">
-                    <svg viewBox="0 0 24 24" className="w-3 h-3" fill="currentColor">
-                      <path d="M7 12h10M12 7l5 5-5 5" />
-                    </svg>
-                  </span>
+                <div className="flex items-center mt-6">
+                  <div className="relative w-[36px] h-[36px] rounded-full bg-[#F59E0B] grid place-items-center">
+                    <span className="text-[11px] font-semibold">TF</span>
+                    <span className="absolute -bottom-1 -right-1 w-4 h-4 bg-[#10182A] rounded-full grid place-items-center">
+                      <svg viewBox="0 0 24 24" className="w-3 h-3" fill="currentColor">
+                        <path d="M7 12h10M12 7l5 5-5 5" />
+                      </svg>
+                    </span>
                   </div>
-                <div className="ml-3 flex-1">
-                  <div className="text-[16px] font-semibold leading-tight">
-                    GitHub
+                  <div className="ml-3 flex-1">
+                    <div className="text-[16px] font-semibold leading-tight">
+                      Thomas Francis
+                    </div>
+                    <div className="text-[13px] text-white/65 whitespace-pre-line">
+                      {"15 Aug, 18:06\nSent from Revolut"}
+                    </div>
                   </div>
-                  <div className="text-[13px] text-white/65">
-                    17 Aug, 04:25 · Reverted
+                  <div className="text-[15px] tabular-nums text-right min-w-[76px] pr-2">
+                    <span className="text-[#ff6b6b]">
+                      -{AUD.format(18).replace("A$", "$")}
+                    </span>
                   </div>
                 </div>
-                <div className="text-[15px] tabular-nums text-right min-w-[76px] pr-2">
-                  <span className="text-white/95">
-                    {AUD.format(1.55).replace("A$", "$")}
-                  </span>
-                </div>
-              </div>
+              </>
+            )}
 
-              <div className="flex items-center mt-6">
-                <div className="relative w-[36px] h-[36px] rounded-full bg-[#F59E0B] grid place-items-center">
-                  <span className="text-[11px] font-semibold">TF</span>
-                  <span className="absolute -bottom-1 -right-1 w-4 h-4 bg-[#10182A] rounded-full grid place-items-center">
-                    <svg viewBox="0 0 24 24" className="w-3 h-3" fill="currentColor">
-                      <path d="M7 12h10M12 7l5 5-5 5" />
-                    </svg>
-                  </span>
-                </div>
-                <div className="ml-3 flex-1">
-                  <div className="text-[16px] font-semibold leading-tight">
-                    Thomas Francis
-                  </div>
-                  <div className="text-[13px] text-white/65 whitespace-pre-line">
-                    {"15 Aug, 18:06\nSent from Revolut"}
-                  </div>
-                </div>
-                <div className="text-[15px] tabular-nums text-right min-w-[76px] pr-2">
-                  <span className="text-[#ff6b6b]">
-                    -{AUD.format(18).replace("A$", "$")}
-                  </span>
-                </div>
-              </div>
-            </>
-          )}
-
-          <Link href="/transactions">
-            <Button className="mt-6 w-full h-10 rounded-lg text-[15px] text-white/90 bg-transparent hover:bg-white/10 transition">
-              See all
-            </Button>
-          </Link>
-        </div>
-      </section>
-
-      {/* Cards Widget - unchanged */}
-      <RevolutCardsWidget cards={cards} />
-
-      {/* Total Wealth */}
-      <section className="px-4 mt-6">
-        <div className="flex items-center justify-between text-white/80">
-          <div className="text-[15px]">Total wealth</div>
-          <ChevronRight className="w-4 h-4 text-white/55" />
-        </div>
-      </section>
-      <section className="px-4 mt-2">
-        <div className="rounded-[22px] bg-[#0F1224]/95 backdrop-blur-md p-4">
-          <div className="text-[34px] font-semibold tabular-nums">
-            {AUD.format(4.29).replace("A$", "$")}
+            <Link href="/transactions">
+              <Button className="mt-6 w-full h-10 rounded-lg text-[15px] text-white/90 bg-transparent hover:bg-white/10 transition">
+                See all
+              </Button>
+            </Link>
           </div>
-          <div className="mt-4 space-y-4">
-            <Row iconBg="#6C8CFF" left="Cash" right={AUD.format(2.19).replace("A$", "$")} />
-            <Row
-              iconBg="#A070FF"
-              left="Crypto"
-              right={AUD.format(2.10).replace("A$", "$")}
-              iconText="₿"
-            />
-            <RowChevron
-              iconBg="#D8E958"
-              title="Loan"
-              subtitle="Get a low-rate loan up to $50,000"
-            />
-            <RowChevron
-              iconBg="#56B4FF"
-              title="Invest"
-              subtitle="Invest for as little as $1"
-              icon={<BarChart3 className="w-4 h-4" />}
-            />
-          </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Spent This Month */}
-      <section className="px-4 mt-6">
-        <div className="rounded-[22px] bg-[#0F1224]/95 backdrop-blur-md p-4">
-          <h3 className="text-white font-medium mb-1">Spent this month</h3>
-          <div className="flex items-end gap-2">
-            <div className="text-[26px] font-semibold tabular-nums">$24</div>
-            <div className="text-emerald-400 text-[14px]">▼ $1,051</div>
-            <div className="ml-auto text-[14px] text-white/70 tabular-nums">$144</div>
+        {/* Cards Widget */}
+        <RevolutCardsWidget cards={cards} />
+
+        {/* Total Wealth */}
+        <section className="mt-6">
+          <div className="flex items-center justify-between text-white/80">
+            <div className="text-[15px]">Total wealth</div>
+            <ChevronRight className="w-4 h-4 text-white/55" />
           </div>
+        </section>
+        <section className="mt-2">
+          <div className="rounded-[22px] bg-[#0F1224]/95 backdrop-blur-md p-4">
+            <div className="text-[34px] font-semibold tabular-nums">
+              {AUD.format(4.29).replace("A$", "$")}
+            </div>
+            <div className="mt-4 space-y-4">
+              <Row iconBg="#6C8CFF" left="Cash" right={AUD.format(2.19).replace("A$", "$")} />
+              <Row
+                iconBg="#A070FF"
+                left="Crypto"
+                right={AUD.format(2.10).replace("A$", "$")}
+                iconText="₿"
+              />
+              <RowChevron
+                iconBg="#D8E958"
+                title="Loan"
+                subtitle="Get a low-rate loan up to $50,000"
+              />
+              <RowChevron
+                iconBg="#56B4FF"
+                title="Invest"
+                subtitle="Invest for as little as $1"
+                icon={<BarChart3 className="w-4 h-4" />}
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* Spent This Month */}
+        <section className="mt-6">
+          <div className="rounded-[22px] bg-[#0F1224]/95 backdrop-blur-md p-4">
+            <h3 className="text-white font-medium mb-1">Spent this month</h3>
+            <div className="flex items-end gap-2">
+              <div className="text-[26px] font-semibold tabular-nums">$24</div>
+              <div className="text-emerald-400 text-[14px]">▼ $1,051</div>
+              <div className="ml-auto text-[14px] text-white/70 tabular-nums">$144</div>
+            </div>
             <div className="mt-3 h-[88px] relative">
-              <svg
-                viewBox="0 0 300 80"
-                className="absolute inset-0 w-full h-full"
-                aria-hidden="true"
-              >
+              <svg viewBox="0 0 300 80" className="absolute inset-0 w-full h-full" aria-hidden="true">
                 <defs>
                   <linearGradient id="grad" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor="#22c55e" stopOpacity=".35" />
                     <stop offset="100%" stopColor="#22c55e" stopOpacity="0" />
                   </linearGradient>
                 </defs>
-                <path
-                  d="M0,70 L100,70 L150,70 L160,65 L220,65 L240,55 L260,45 L300,35"
-                  stroke="#22c55e"
-                  strokeWidth="2"
-                  fill="none"
-                />
-                <path
-                  d="M0,70 L100,70 L150,70 L160,65 L220,65 L240,55 L260,45 L300,35 L300,80 L0,80 Z"
-                  fill="url(#grad)"
-                />
+                <path d="M0,70 L100,70 L150,70 L160,65 L220,65 L240,55 L260,45 L300,35" stroke="#22c55e" strokeWidth="2" fill="none" />
+                <path d="M0,70 L100,70 L150,70 L160,65 L220,65 L240,55 L260,45 L300,35 L300,80 L0,80 Z" fill="url(#grad)" />
               </svg>
               <div className="absolute bottom-0 left-0 right-0 px-1 flex justify-between text-[11px] text-white/50">
-                <span>1</span>
-                <span>6</span>
-                <span>11</span>
-                <span>16</span>
-                <span>21</span>
-                <span>26</span>
-                <span>31</span>
+                <span>1</span><span>6</span><span>11</span><span>16</span><span>21</span><span>26</span><span>31</span>
               </div>
             </div>
-        </div>
-      </section>
+          </div>
+        </section>
 
-      {/* Watchlist */}
-      <section className="px-4 mt-6">
-        <div className="flex items-center justify-between text-white/80">
-          <div className="text-[15px]">Watchlist</div>
-          <ChevronRight className="w-4 h-4 text-white/55" />
-        </div>
-      </section>
-      <section className="px-4 mt-2 mb-24">
-        <div className="rounded-[22px] bg-[#0F1224]/95 backdrop-blur-md p-4">
-          <WatchRow
-            dotClass="bg-[#EADFC7]"
-            label="Gold"
-            sub="XAU to AUD"
-            price="$5,135.7332"
-            pct="▼ 0.07%"
-          />
-          <div className="h-4" />
-          <WatchRow
-            dotClass="bg-[#1E4FFF]"
-            label="Euro"
-            sub="EUR to AUD"
-            price="$1.7950"
-            pct="▼ 0.18%"
-            flag
-          />
-          <Button className="mt-2 w-full h-10 rounded-lg text-[15px] text-white/90 bg-transparent hover:bg-white/10 transition">
-            See all
-          </Button>
-        </div>
-      </section>
+        {/* Watchlist */}
+        <section className="mt-6">
+          <div className="flex items-center justify-between text-white/80">
+            <div className="text-[15px]">Watchlist</div>
+            <ChevronRight className="w-4 h-4 text-white/55" />
+          </div>
+        </section>
+        <section className="mt-2 mb-24">
+          <div className="rounded-[22px] bg-[#0F1224]/95 backdrop-blur-md p-4">
+            <WatchRow
+              dotClass="bg-[#EADFC7]"
+              label="Gold"
+              sub="XAU to AUD"
+              price="$5,135.7332"
+              pct="▼ 0.07%"
+            />
+            <div className="h-4" />
+            <WatchRow
+              dotClass="bg-[#1E4FFF]"
+              label="Euro"
+              sub="EUR to AUD"
+              price="$1.7950"
+              pct="▼ 0.18%"
+              flag
+            />
+            <Button className="mt-2 w-full h-10 rounded-lg text-[15px] text-white/90 bg-transparent hover:bg-white/10 transition">
+              See all
+            </Button>
+          </div>
+        </section>
+      </div>
     </div>
   );
 }
 
 /* ---------- small presentational helpers ---------- */
 
-function Row({
-  iconBg,
-  left,
-  right,
-  iconText,
-}: {
-  iconBg: string;
-  left: string;
-  right: string;
-  iconText?: string;
-}) {
+function Row({ iconBg, left, right, iconText }: { iconBg: string; left: string; right: string; iconText?: string; }) {
   return (
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-3">
-        <div
-          className="w-8 h-8 rounded-full grid place-items-center"
-          style={{ background: iconBg }}
-        >
-          {iconText ? (
-            <span className="text-white text-sm font-bold">{iconText}</span>
-          ) : (
-            <span className="text-white text-sm">$</span>
-          )}
+        <div className="w-8 h-8 rounded-full grid place-items-center" style={{ background: iconBg }}>
+          {iconText ? <span className="text-white text-sm font-bold">{iconText}</span> : <span className="text-white text-sm">$</span>}
         </div>
         <div className="text-[16px]">{left}</div>
       </div>
@@ -480,24 +445,11 @@ function Row({
   );
 }
 
-function RowChevron({
-  iconBg,
-  title,
-  subtitle,
-  icon,
-}: {
-  iconBg: string;
-  title: string;
-  subtitle: string;
-  icon?: React.ReactNode;
-}) {
+function RowChevron({ iconBg, title, subtitle, icon }: { iconBg: string; title: string; subtitle: string; icon?: React.ReactNode; }) {
   return (
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-3">
-        <div
-          className="w-8 h-8 rounded-full grid place-items-center"
-          style={{ background: iconBg }}
-        >
+        <div className="w-8 h-8 rounded-full grid place-items-center" style={{ background: iconBg }}>
           {icon ?? <span className="text-white text-sm">$</span>}
         </div>
         <div>
@@ -510,32 +462,12 @@ function RowChevron({
   );
 }
 
-function WatchRow({
-  dotClass,
-  label,
-  sub,
-  price,
-  pct,
-  flag,
-}: {
-  dotClass: string;
-  label: string;
-  sub: string;
-  price: string;
-  pct: string;
-  flag?: boolean;
-}) {
+function WatchRow({ dotClass, label, sub, price, pct, flag }: { dotClass: string; label: string; sub: string; price: string; pct: string; flag?: boolean; }) {
   return (
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-3">
-        <div
-            className={`w-8 h-8 rounded-full grid place-items-center ${dotClass}`}
-        >
-          {flag ? (
-            <span className="text-[12px]">🇪🇺</span>
-          ) : (
-            <span className="text-[12px] font-semibold">Au</span>
-          )}
+        <div className={`w-8 h-8 rounded-full grid place-items-center ${dotClass}`}>
+          {flag ? <span className="text-[12px]">🇪🇺</span> : <span className="text-[12px] font-semibold">Au</span>}
         </div>
         <div>
           <div className="text-[16px]">{label}</div>
@@ -549,3 +481,4 @@ function WatchRow({
     </div>
   );
 }
+// --- END HOME COMPONENT ---
