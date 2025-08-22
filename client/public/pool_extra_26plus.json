@@ -1,0 +1,13 @@
+[
+  { "id": "POOL-0014", "date": "2024-07-26T23:07:00", "merchant": "Money added via Apple Pay", "amount": "25", "status": "", "description": "", "secondary": "", "location": { "lat": null, "lon": null, "address": "Online" } },
+  { "id": "POOL-0015", "date": "2024-07-26T23:07:00", "merchant": "Thomas Francis", "amount": "-5", "status": "", "description": "Sent from Revolut", "secondary": "", "location": { "lat": null, "lon": null, "address": "P2P Transfer" } },
+  { "id": "POOL-0016", "date": "2024-07-26T21:38:00", "merchant": "Rtf", "amount": "-23.35", "status": "", "description": "", "secondary": "-€13", "location": { "lat": 48.8566, "lon": 2.3522, "address": "Île-de-France (Transit)" } },
+  { "id": "POOL-0017", "date": "2024-07-26T20:28:00", "merchant": "Pains De Provence", "amount": "-2.18", "status": "", "description": "", "secondary": "-€1.20", "location": { "lat": 43.5804, "lon": 7.1251, "address": "Bd d'Aguillon area, Antibes" } },
+  { "id": "POOL-0018", "date": "2024-07-26T20:12:00", "merchant": "Pains De Provence", "amount": "-12.14", "status": "", "description": "", "secondary": "-€6.70", "location": { "lat": 43.5804, "lon": 7.1251, "address": "Bd d'Aguillon area, Antibes" } },
+  { "id": "POOL-0009", "date": "2024-07-27T23:38:00", "merchant": "Pharmacie du Voyage Roissy 1", "amount": "-3.63", "status": "", "description": "", "secondary": "-€2", "location": { "lat": 49.0125, "lon": 2.5499, "address": "CDG Terminal 1, Roissy-en-France" } },
+  { "id": "POOL-0010", "date": "2024-07-27T17:10:00", "merchant": "Marché Franprix", "amount": "-0.91", "status": "", "description": "", "secondary": "-€0.50", "location": { "lat": 48.8709, "lon": 2.3328, "address": "Paris (central) — Franprix" } },
+  { "id": "POOL-0011", "date": "2024-07-27T03:39:00", "merchant": "Burger Foods", "amount": "-10.88", "status": "", "description": "", "secondary": "-€6", "location": { "lat": 48.9959, "lon": 2.5619, "address": "Roissy-en-France (airport zone)" } },
+  { "id": "POOL-0012", "date": "2024-07-27T00:32:00", "merchant": "yesim", "amount": "-12.69", "status": "", "description": "", "secondary": "-€7", "location": { "lat": null, "lon": null, "address": "Online (eSIM)" } },
+  { "id": "POOL-0013", "date": "2024-07-27T00:06:00", "merchant": "Olvadis", "amount": "-1.82", "status": "", "description": "", "secondary": "-€1", "location": { "lat": 49.0074, "lon": 2.5610, "address": "Roissy service area" } },
+  { "id": "POOL-0029", "date": "2024-07-29T07:20:00", "merchant": "McDonald's", "amount": "-2.50", "status": "", "description": "", "secondary": "", "location": { "lat": 49.0097, "lon": 2.5479, "address": "McDonald's, CDG Terminal 2" } }
+]
