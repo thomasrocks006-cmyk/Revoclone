@@ -73,7 +73,7 @@ const RevolutCardsWidget: React.FC<RevolutCardsWidgetProps> = ({
   className = "",
 }) => {
   return (
-    <section className={`px-4 mt-6 ${className}`}>
+    <section className={`mt-6 ${className}`}>
       {/* Header */}
       <div className="flex items-center justify-between text-white/80 mb-2">
         <div className="text-[15px]">Cards</div>

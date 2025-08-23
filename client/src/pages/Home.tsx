@@ -131,33 +131,35 @@ export default function Home() {
         />
 
         {/* Top bar */}
-        <div className="relative z-10 px-3 pt-3">
-          <div className="flex items-center gap-2">
-            <div className="relative w-9 h-9 rounded-full bg-[#F59E0B] grid place-items-center shadow-sm">
-              <span className="text-[12px] font-semibold tracking-tight">
-                {initials}
-              </span>
-              <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full" />
-            </div>
-
-            <div className="flex-1">
-              <button
-                className="w-full h-[40px] rounded-[22px] bg-white/18 backdrop-blur-[3px] flex items-center px-4 border border-white/15 text-left"
-                aria-label="Search"
-              >
-                <Search className="w-[18px] h-[18px] text-white/80 mr-2" />
-                <span className="text-white/75 text-[13px] leading-none">
-                  Search
+        <div className="relative z-10 pt-3">
+          <div className="w-full max-w-[350px] mx-auto px-4">
+            <div className="flex items-center gap-2">
+              <div className="relative w-9 h-9 rounded-full bg-[#F59E0B] grid place-items-center shadow-sm">
+                <span className="text-[12px] font-semibold tracking-tight">
+                  {initials}
                 </span>
-              </button>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-white/12 grid place-items-center border border-white/10">
-                <BarChart3 className="w-[18px] h-[18px]" />
+                <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full" />
               </div>
-              <div className="w-9 h-9 rounded-full bg-white/12 grid place-items-center border border-white/10">
-                <Menu className="w-[18px] h-[18px]" />
+
+              <div className="flex-1">
+                <button
+                  className="w-full h-[40px] rounded-[22px] bg-white/18 backdrop-blur-[3px] flex items-center px-4 border border-white/15 text-left"
+                  aria-label="Search"
+                >
+                  <Search className="w-[18px] h-[18px] text-white/80 mr-2" />
+                  <span className="text-white/75 text-[13px] leading-none">
+                    Search
+                  </span>
+                </button>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-full bg-white/12 grid place-items-center border border-white/10">
+                  <BarChart3 className="w-[18px] h-[18px]" />
+                </div>
+                <div className="w-9 h-9 rounded-full bg-white/12 grid place-items-center border border-white/10">
+                  <Menu className="w-[18px] h-[18px]" />
+                </div>
               </div>
             </div>
           </div>
@@ -215,7 +217,7 @@ export default function Home() {
       </div>
 
       {/* Shared content wrapper: normalize width to match Uizard (350px) */}
-      <div className="w-full max-w-[350px] mx-auto">
+      <div className="w-full max-w-[350px] mx-auto px-4">
         {/* Recent Transactions: measured gap below actions = 36px */}
         <section className="mt-[36px]">
           <div className="rounded-[22px] bg-[#0F1224]/95 backdrop-blur-md p-4 shadow-[0_12px_28px_rgba(0,0,0,0.45)]">
