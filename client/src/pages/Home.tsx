@@ -119,9 +119,9 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen text-white" data-testid="home-screen">
-      {/* Header gradient */}
-      <div className="relative" style={{ height: 580 }}>
+    <div className="min-h-screen text-white bg-[#0B0D18]" data-testid="home-screen">
+  {/* Header gradient */}
+  <div className="relative w-full" style={{ height: 580 }}>
         <div
           className="absolute inset-0"
           style={{
@@ -130,14 +130,14 @@ export default function Home() {
           }}
         />
 
-        {/* Top bar */}
-        <div className="relative z-10 px-3 pt-3">
-          <div className="flex items-center gap-2">
+        {/* Top bar: full width, edge-to-edge */}
+        <div className="relative z-10 px-2 pt-3 w-full">
+          <div className="flex items-center gap-2 w-full">
             <div className="relative w-9 h-9 rounded-full bg-[#F59E0B] grid place-items-center shadow-sm">
-              <span className="text-[12px] font-semibold tracking-tight">
-                {initials}
-              </span>
-              <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full" />
+              {/* Camera icon instead of initials */}
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 7h2l2-3h6l2 3h2a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9a2 2 0 012-2zm9 4a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
             </div>
 
             <div className="flex-1">
@@ -163,10 +163,10 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Center stack (measured) */}
-        <div className="relative z-10 pt-12 pb-2 flex flex-col items-center select-none">
+  {/* Center stack (measured) */}
+  <div className="relative z-10 pt-12 pb-2 flex flex-col items-center select-none max-w-[420px] mx-auto w-full px-4">
           <div
-            className="text-white/65 text-[12px] mb-[38px]"
+            className="text-white/65 text-[12px] mb-[6px] mt-[32px]"
             data-testid="text-account-type"
           >
             Personal · AUD
@@ -176,8 +176,8 @@ export default function Home() {
             data-testid="text-balance"
             title={AUD.format(balance)}
           >
-            <span className="text-[56px] tabular-nums">{whole}</span>
-            <span className="align-text-top text-[22px] ml-[2px] tabular-nums">
+            <span className="text-[40px] tabular-nums relative" style={{ top: '10px', left: '2px' }}>{whole}</span>
+            <span className="text-[22px] tabular-nums ml-[1px] relative" style={{ top: '10px' }}>
               .{cents}
             </span>
           </div>
@@ -186,18 +186,12 @@ export default function Home() {
           </Button>
         </div>
 
-        {/* Dots positioned by measured gaps (visuals unchanged) */}
-        <div className="relative z-10 mt-[54px] mb-[43px] flex items-center justify-center">
-          <div className="flex items-center gap-1.5">
-            <span className="w-1 h-1 rounded-full bg-white/40 inline-block" />
-            <span className="w-1 h-1 rounded-full bg-white inline-block" />
-          </div>
-        </div>
+  {/* ...removed dots under Accounts... */}
       </div>
 
-      {/* Quick Actions: exact row width 313px, center spacing ≈87px */}
-      <div className="-mt-[187px] relative z-10">
-        <div className="w-[313px] mx-auto grid grid-cols-4 gap-[35px] text-center">
+      {/* Quick Actions: full width, edge-to-edge */}
+      <div className="-mt-[187px] relative z-10 w-full px-2">
+        <div className="w-full grid grid-cols-4 gap-2 text-center">
           {[
             { key: "add", label: "Add money", icon: <Plus className="w-[20px] h-[20px]" /> },
             { key: "payid", label: "PayID", icon: <span className="text-[12px] font-black">iD</span> },
@@ -214,8 +208,8 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Shared content wrapper: normalize width to match Uizard (350px) */}
-      <div className="w-full max-w-[350px] mx-auto">
+  {/* Shared content wrapper: full width, edge-to-edge */}
+  <div className="w-full px-2">
         {/* Recent Transactions: measured gap below actions = 36px */}
         <section className="mt-[36px]">
           <div className="rounded-[22px] bg-[#0F1224]/95 backdrop-blur-md p-4 shadow-[0_12px_28px_rgba(0,0,0,0.45)]">
@@ -330,7 +324,9 @@ export default function Home() {
         </section>
 
         {/* Cards Widget */}
-        <RevolutCardsWidget cards={cards} />
+        <div className="mt-6">
+          <RevolutCardsWidget cards={cards} />
+        </div>
 
         {/* Total Wealth */}
         <section className="mt-6">

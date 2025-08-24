@@ -87,7 +87,7 @@ const RevolutCardsWidget: React.FC<RevolutCardsWidgetProps> = ({
             if (card.id === "get-card") {
               return (
                 <div key={card.id} className="flex flex-col items-center flex-1">
-                  <div className="relative w-20 h-14 rounded-lg overflow-hidden mb-2 bg-gray-700 border border-dashed border-gray-600 flex items-center justify-center">
+                  <div className="relative w-20 h-14 rounded-[6px] overflow-hidden mb-2 bg-gray-700 border border-dashed border-gray-600 flex items-center justify-center">
                     <div className="text-white text-xl font-light">+</div>
                   </div>
                   <div className="text-center">
@@ -100,7 +100,7 @@ const RevolutCardsWidget: React.FC<RevolutCardsWidgetProps> = ({
             const CardContent = (
               <div
                 className={[
-                  "relative w-20 h-14 rounded-lg overflow-hidden mb-2 transition-shadow",
+                  "relative w-20 h-14 rounded-[6px] overflow-hidden mb-2 transition-shadow",
                   "shadow-[0_0_0_0_rgba(0,0,0,0)] hover:shadow-[0_4px_18px_-4px_rgba(0,0,0,0.55)]",
                   card.ring ? "card-orbit" : "",
                 ].join(" ")}
@@ -109,11 +109,7 @@ const RevolutCardsWidget: React.FC<RevolutCardsWidgetProps> = ({
                 }}
               >
                 {/* Optional attention dot */}
-                {card.showAlertDot && (
-                  <div className="absolute -right-0.5 -top-0.5 w-3 h-3 rounded-full bg-yellow-400 grid place-items-center text-black text-[8px] font-bold">
-                    !
-                  </div>
-                )}
+                {/* Removed yellow alert dot */}
 
                 {/* Revolut R */}
                 <div className="absolute top-1 right-2">
@@ -138,7 +134,7 @@ const RevolutCardsWidget: React.FC<RevolutCardsWidgetProps> = ({
               card.href ? (
                 <Link
                   href={card.href}
-                  className="block group focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-400 rounded-lg"
+                  className="block group focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-400 rounded-[6px]"
                 >
                   {children}
                 </Link>
