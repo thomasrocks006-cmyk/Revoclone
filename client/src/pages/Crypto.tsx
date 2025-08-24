@@ -63,10 +63,10 @@ export default function Crypto() {
           </div>
         </div>
 
-        {/* Main Price Display */}
-        <div className="text-center py-6 px-4">
-          <div className="text-7xl font-extralight mb-3 tracking-tight">$2.03</div>
-          <div className="text-green-400 text-xl font-medium flex items-center justify-center gap-2">
+        {/* Main Price Display - Centered between search bar and Trade/Receive buttons */}
+        <div className="flex flex-col items-center justify-center py-4 px-4">
+          <div className="text-5xl font-extralight mb-2 tracking-tight">$2.03</div>
+          <div className="text-green-400 text-base font-medium flex items-center justify-center gap-2">
             <span>+$1.13</span>
             <span>▲ 126%</span>
           </div>
