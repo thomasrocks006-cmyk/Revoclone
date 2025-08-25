@@ -1,5 +1,6 @@
 import { type User, type InsertUser, type Transaction, type InsertTransaction, type Card, type InsertCard, type CryptoAsset, type InsertCryptoAsset } from "@shared/schema";
 import { randomUUID } from "crypto";
+import { MERCHANT_LOCATIONS } from "./locationData";
 
 export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
@@ -71,7 +72,7 @@ export class MemStorage implements IStorage {
     this.cards.set(disposableCard.id, disposableCard);
 
     // Create transactions - New transaction data from June-July 2024 European trip
-    const transactions: Omit<Transaction, 'id'>[] = [
+  const transactions: Omit<Transaction, 'id'>[] = [
       {
         userId: thomasId,
         merchant: "Taxi G7",
@@ -3198,7 +3199,16 @@ export class MemStorage implements IStorage {
 
     transactions.forEach(transaction => {
       const id = randomUUID();
-      this.transactions.set(id, { ...transaction, id });
+      // Enrich with location data when available (kept out of shared schema; used by client UI)
+      const loc = MERCHANT_LOCATIONS[(transaction.merchant as unknown as string)] as
+        | { lat: number; lon: number; address: string }
+        | undefined;
+      if (loc) {
+        const withLoc: any = { ...transaction, id, location: { ...loc } };
+        this.transactions.set(id, withLoc);
+        return;
+      }
+      this.transactions.set(id, { ...(transaction as any), id });
     });
 
     // Create crypto assets

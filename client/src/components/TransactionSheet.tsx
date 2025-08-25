@@ -345,7 +345,7 @@ function LocationCard({ tx }: { tx: Transaction }) {
   const marker = hasCoords ? `&markers=${lat},${lon},lightblue1` : '';
   const osmUrl = hasCoords
     ? `https://staticmap.openstreetmap.de/staticmap.php?center=${lat},${lon}&zoom=${zoom}&size=${width}x${height}${marker}`
-    : `https://staticmap.openstreetmap.de/staticmap.php?center=${encodeURIComponent(address)}&zoom=${zoom}&size=${width}x${height}`;
+    : undefined;
 
   return (
     <a
@@ -356,8 +356,14 @@ function LocationCard({ tx }: { tx: Transaction }) {
       aria-label={`Open in Apple Maps: ${address}`}
     >
       <div className="relative h-40 w-full">
-        <img src={osmUrl} alt={address} className="absolute inset-0 w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-black/45" />
+        {osmUrl ? (
+          <>
+            <img src={osmUrl} alt={address} className="absolute inset-0 w-full h-full object-cover" />
+            <div className="absolute inset-0 bg-black/45" />
+          </>
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-br from-[#2F3A48] to-[#173342]" />
+        )}
         <div className="absolute bottom-3 left-3 text-white text-[12px] font-medium drop-shadow">
           <span className="align-middle"></span>
           <span className="align-middle ml-1">Maps</span>

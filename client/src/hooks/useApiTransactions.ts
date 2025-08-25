@@ -41,7 +41,8 @@ function mapServerToClientTransaction(serverTx: ServerTransaction): ClientTransa
     originalAmount: serverTx.originalAmount ?? undefined,
     originalCurrency: serverTx.originalCurrency ?? undefined,
     iconColor: serverTx.iconColor ?? undefined,
-    // location: undefined - server doesn't provide geo data, UI handles optional
+  // Carry through optional location if server provided it (not part of shared schema)
+  location: (serverTx as any).location ?? undefined,
   };
 }
 
