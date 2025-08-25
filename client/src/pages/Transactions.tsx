@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import type { Transaction } from "@/types/transaction";
-import { useTransactions } from "@/hooks/useTransactions";
+import { useApiTransactions } from "@/hooks/useApiTransactions";
 import { useTransactionGroups } from "@/hooks/useTransactionGroups";
 import { useSearch } from "@/hooks/useSearch";
 import { useScrollLock } from "@/hooks/useScrollLock";
@@ -22,7 +22,7 @@ const FX_TO_AUD: Record<string, number> = {
 
 export default function Transactions() {
   const [openTx, setOpenTx] = useState<Transaction | null>(null);
-  const { transactions, loading, error } = useTransactions();
+  const { transactions, loading, error } = useApiTransactions();
   const { searchTerm, setSearchTerm, filteredTransactions, hasActiveSearch } = useSearch(transactions);
   const groups = useTransactionGroups(filteredTransactions);
 
