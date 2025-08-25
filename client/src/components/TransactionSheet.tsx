@@ -1,34 +1,91 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import type { Transaction } from '@/types/transaction';
 import TransactionIcon from '@/components/TransactionIcon';
+
+// Static FX rates per requirements
+// 1 AUD = 0.55 EUR, 1 AUD = 0.48 GBP
+const FX_AUD_TO_LOCAL: Record<string, number> = {
+  AUD: 1,
+  EUR: 0.55,
+  GBP: 0.48,
+  USD: 1,
+};
+
+const localSymbol = (code?: string) => (code === 'EUR' ? '€' : code === 'GBP' ? '£' : '$');
+const formatAbs = (n: number, symbol: string) => `${symbol}${Math.abs(n).toFixed(2)}`;
 
 export default function TransactionSheet({ tx, onClose }: { tx: Transaction; onClose: () => void }) {
   if (!tx) return null;
 
-  const amount = parseFloat(tx.amount || '0');
-  const isNeg = amount < 0;
-  const symbol = tx.currency === 'EUR' ? '€' : tx.currency === 'USD' ? '$' : '$';
-  const amountText = `${isNeg ? '-' : '+'}${symbol}${Math.abs(amount).toFixed(2)}`;
+  // Prefer original local charge if provided
+  const localAmountRaw = parseFloat(tx.originalAmount ?? tx.amount ?? '0');
+  const localCurrency = (tx.originalCurrency ?? tx.currency ?? 'AUD') as keyof typeof FX_AUD_TO_LOCAL;
+  const localSym = localSymbol(localCurrency);
+
+  // Convert local to AUD using provided fixed rates
+  const audPerLocal = FX_AUD_TO_LOCAL[localCurrency] === 0 ? 0 : 1 / (FX_AUD_TO_LOCAL[localCurrency] || 1);
+  const amountAud = localCurrency === 'AUD' ? localAmountRaw : localAmountRaw * audPerLocal;
+  const isNeg = amountAud < 0;
+  const amountText = `${isNeg ? '-' : '+'}$${Math.abs(amountAud).toFixed(2)}`;
 
   const time24 = (iso: string) => new Date(iso).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false });
   const dateLong = (iso: string) => new Date(iso).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
+
+  // Sticky header fade-in state
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+  const [titleOpacity, setTitleOpacity] = useState(0);
+  const headerFadeStart = 20; // px
+  const headerFadeEnd = 80; // px
+
+  const handleScroll = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const y = el.scrollTop;
+    const t = Math.min(1, Math.max(0, (y - headerFadeStart) / (headerFadeEnd - headerFadeStart)));
+    setTitleOpacity(t);
+  };
+
+  useEffect(() => {
+    handleScroll();
+  }, []);
 
   return (
     <div className="fixed inset-0 z-50" aria-modal="true" role="dialog">
       <div className="absolute inset-0 bg-black" onClick={onClose} />
       <div className="absolute inset-0 flex items-end">
-        <div className="w-full max-w-[430px] mx-auto bg-[#1C1C1E] rounded-t-3xl text-white h-[95vh] overflow-y-auto" onClick={(e) => e.stopPropagation()} style={{ boxShadow: '0 -10px 40px rgba(0,0,0,1)' }}>
-          <div className="pt-3 pb-2 flex justify-center sticky top-0 bg-[#1C1C1E] z-10">
-            <div className="w-12 h-1.5 rounded-full bg-white/30" />
+        <div
+          ref={scrollRef}
+          onScroll={handleScroll}
+          className="w-full max-w-[430px] mx-auto bg-[#1C1C1E] rounded-t-3xl text-white h-[95vh] overflow-y-auto relative"
+          onClick={(e) => e.stopPropagation()}
+          style={{ boxShadow: '0 -10px 40px rgba(0,0,0,1)' }}
+        >
+          {/* Sticky translucent header bar with Close and fading merchant name */}
+          <div className="sticky top-0 z-30">
+            <div className="h-12 flex items-center px-2 bg-[#1C1C1E]/60 backdrop-blur-md border-b border-white/5">
+              <button
+                onClick={onClose}
+                className="w-10 h-10 grid place-items-center text-white/90 hover:text-white focus:outline-none"
+                aria-label="Close"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24">
+                  <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+              </button>
+              <div className="flex-1 text-center select-none">
+                <div
+                  className="text-[17px] font-semibold text-white"
+                  style={{ opacity: titleOpacity, transition: 'opacity 200ms ease' }}
+                >
+                  {tx.merchant}
+                </div>
+              </div>
+              <div className="w-10" />
+            </div>
           </div>
 
-          <div className="px-6 pt-4 pb-6 relative">
-            <button onClick={onClose} className="absolute left-4 top-4 w-8 h-8 grid place-items-center rounded-full text-white hover:bg-white/10" aria-label="Close">
-              <svg width="18" height="18" viewBox="0 0 24 24">
-                <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-              </svg>
-            </button>
-
+          {/* Header content area */}
+          <div className="px-6 pt-6 pb-6 relative">
             <div className="absolute right-6 top-4">
               <div className="w-12 h-12">
                 <TransactionIcon transaction={tx} size="lg" />
@@ -53,7 +110,8 @@ export default function TransactionSheet({ tx, onClose }: { tx: Transaction; onC
             </button>
           </div>
 
-          <div className="px-6 mb-6">
+          {/* Map card */}
+          <div className="px-4 mb-6">
             <div className="rounded-2xl overflow-hidden bg-[#3A5998] h-40 relative">
               <div className="absolute inset-0 bg-gradient-to-br from-[#4A7C99] to-[#2D4A6B]"></div>
               <div className="absolute bottom-3 left-3 text-white text-[12px] font-medium">{tx.location?.address || 'Unknown location'}</div>
@@ -64,12 +122,31 @@ export default function TransactionSheet({ tx, onClose }: { tx: Transaction; onC
             </div>
           </div>
 
-          <div className="px-6 space-y-4 pb-20">
+          {/* Detail blocks (aligned to map card width) */}
+          <div className="px-4 space-y-4 pb-20">
             <Block>
-              <Row label="Status" value={tx.status || 'Completed'} />
-              <Row label="Card" value="Mastercard ••4103" valueClass="text-[#60A5FA]" icon="card" />
-              <Row label="Statement" value="Download" valueClass="text-[#60A5FA]" icon="download" />
+              {(() => {
+                const raw = (tx.status || 'completed').toString();
+                const map: Record<string, string> = {
+                  card_verification: 'Card verification',
+                  delayed_transaction: 'Delayed transaction',
+                };
+                const displayStatus = map[raw] ?? (raw.charAt(0).toUpperCase() + raw.slice(1));
+                return <Row label="Status" value={displayStatus} />;
+              })()}
+              <Row label="Card" customRight={<a href="#" className="text-[#60A5FA] text-[16px] hover:underline">Mastercard ••4103</a>} />
+              <Row label="Statement" customRight={<a href="#" className="text-[#60A5FA] text-[16px] hover:underline">Download</a>} />
             </Block>
+
+            {(localCurrency !== 'AUD' && (localCurrency === 'EUR' || localCurrency === 'GBP')) && (
+              <Block>
+                <Row label="Merchant's charge" value={formatAbs(localAmountRaw, localSym)} />
+                <Row label="Exchange rate" value={`$1 = ${localSym}${(FX_AUD_TO_LOCAL[localCurrency] ?? 1).toFixed(4)}`} />
+                <Row label="Exchanged amount" value={formatAbs(amountAud, '$')} />
+                <Row label="Fees" value="No fee" />
+                <Row label="Your total" value={formatAbs(amountAud, '$')} />
+              </Block>
+            )}
 
             <Block>
               <Row label="Exclude from analytics" customRight={<Toggle />} />
@@ -102,7 +179,7 @@ export default function TransactionSheet({ tx, onClose }: { tx: Transaction; onC
 }
 
 function Block({ children }: { children: React.ReactNode }) {
-  return <div className="rounded-2xl bg-[#2C2C2E] px-5 py-4 space-y-4">{children}</div>;
+  return <div className="rounded-2xl bg-[#2C2C2E] px-4 py-4 space-y-4">{children}</div>;
 }
 
 function Row({ label, value, valueClass, chevron, icon, customRight }: { label: string; value?: string; valueClass?: string; chevron?: boolean; icon?: 'card' | 'download' | 'fork' | 'bars' | 'camera' | 'plus'; customRight?: React.ReactNode }) {
@@ -168,16 +245,32 @@ function RowIcon({ kind }: { kind: string }) {
     ),
   };
 
+  const content = paths[kind] ?? null;
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" className="text-white/50" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-      {paths[kind] ?? null}
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      className="text-white/60"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      {content}
     </svg>
   );
 }
 
 function Toggle() {
   return (
-    <button type="button" className="relative inline-flex h-8 w-14 items-center rounded-full bg-[#3A3A3C] transition-colors" onClick={(e) => e.preventDefault()}>
+    <button
+      type="button"
+      className="relative inline-flex h-8 w-14 items-center rounded-full bg-[#3A3A3C] transition-colors"
+      onClick={(e) => e.preventDefault()}
+      aria-pressed="false"
+    >
       <span className="inline-block h-7 w-7 transform rounded-full bg-white translate-x-0.5 transition-transform will-change-transform shadow-sm" />
     </button>
   );
