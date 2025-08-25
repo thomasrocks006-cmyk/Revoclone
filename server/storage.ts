@@ -3212,7 +3212,7 @@ export class MemStorage implements IStorage {
     });
 
     // Create crypto assets
-    const cryptoAssets: CryptoAsset[] = [
+  const cryptoAssets: CryptoAsset[] = [
       {
         id: "bitcoin",
         symbol: "BTC",
@@ -3249,6 +3249,7 @@ export class MemStorage implements IStorage {
         name: "0x Protocol",
         price: "0.45",
         change24h: "23.44",
+    chartData: null,
         icon: "0x",
       },
       {
@@ -3257,6 +3258,7 @@ export class MemStorage implements IStorage {
         name: "Polygon",
         price: "1.23",
         change24h: "4.14",
+    chartData: null,
         icon: "⬟",
       },
       {
@@ -3265,6 +3267,7 @@ export class MemStorage implements IStorage {
         name: "Polkadot",
         price: "8.92",
         change24h: "4.10",
+    chartData: null,
         icon: "●",
       },
       {
@@ -3273,6 +3276,7 @@ export class MemStorage implements IStorage {
         name: "Golem",
         price: "0.34",
         change24h: "3.40",
+    chartData: null,
         icon: "G",
       },
       {
@@ -3281,6 +3285,7 @@ export class MemStorage implements IStorage {
         name: "Amp",
         price: "0.012",
         change24h: "3.19",
+    chartData: null,
         icon: "A",
       },
       {
@@ -3289,6 +3294,7 @@ export class MemStorage implements IStorage {
         name: "Qtum",
         price: "4.56",
         change24h: "2.64",
+    chartData: null,
         icon: "Q",
       },
       {
@@ -3297,6 +3303,7 @@ export class MemStorage implements IStorage {
         name: "Cronos",
         price: "0.18",
         change24h: "2.39",
+    chartData: null,
         icon: "C",
       },
       {
@@ -3305,6 +3312,7 @@ export class MemStorage implements IStorage {
         name: "Adventure Gold",
         price: "2.34",
         change24h: "2.36",
+    chartData: null,
         icon: "L",
       },
     ];
@@ -3326,7 +3334,18 @@ export class MemStorage implements IStorage {
 
   async createUser(insertUser: InsertUser): Promise<User> {
     const id = randomUUID();
-    const user: User = { ...insertUser, id, createdAt: new Date() };
+    const user: User = {
+      id,
+      username: insertUser.username,
+      firstName: insertUser.firstName,
+      lastName: insertUser.lastName,
+      email: insertUser.email,
+      avatar: insertUser.avatar ?? null,
+      balance: insertUser.balance ?? "0.00",
+      currency: insertUser.currency ?? "AUD",
+      plan: insertUser.plan ?? "Personal",
+      createdAt: new Date(),
+    };
     this.users.set(id, user);
     return user;
   }
@@ -3339,7 +3358,22 @@ export class MemStorage implements IStorage {
 
   async createTransaction(insertTransaction: InsertTransaction): Promise<Transaction> {
     const id = randomUUID();
-    const transaction: Transaction = { ...insertTransaction, id, date: new Date() };
+    const txAny = insertTransaction as any;
+    const transaction: Transaction = {
+      id,
+      date: new Date(),
+      userId: insertTransaction.userId,
+      merchant: insertTransaction.merchant,
+      amount: insertTransaction.amount,
+      currency: insertTransaction.currency ?? "AUD",
+      originalAmount: txAny.originalAmount ?? null,
+      originalCurrency: txAny.originalCurrency ?? null,
+      category: insertTransaction.category,
+      status: insertTransaction.status ?? "completed",
+      description: txAny.description ?? null,
+      merchantIcon: txAny.merchantIcon ?? null,
+      iconColor: txAny.iconColor ?? null,
+    };
     this.transactions.set(id, transaction);
     return transaction;
   }
@@ -3351,7 +3385,16 @@ export class MemStorage implements IStorage {
 
   async createCard(insertCard: InsertCard): Promise<Card> {
     const id = randomUUID();
-    const card: Card = { ...insertCard, id, createdAt: new Date() };
+    const card: Card = {
+      id,
+      userId: insertCard.userId,
+      type: insertCard.type,
+      name: insertCard.name,
+      lastFour: insertCard.lastFour,
+      isActive: insertCard.isActive ?? true,
+      description: insertCard.description ?? null,
+      createdAt: new Date(),
+    };
     this.cards.set(id, card);
     return card;
   }

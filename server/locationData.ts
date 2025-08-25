@@ -88,7 +88,6 @@ export const MERCHANT_LOCATIONS: Record<string, MerchantLocation> = {
   // Dublin
   "The Temple Bar Pub": { lat: 53.3455, lon: -6.2642, address: "47-48 Temple Bar, Dublin, D02 N725, Ireland" },
   "FREE NOW Dublin": { lat: 53.3498, lon: -6.2603, address: "Dublin, Ireland" },
-  "Tesco Express": { lat: 53.3437, lon: -6.2631, address: "Dublin 2, Ireland" },
   "Guinness Storehouse": { lat: 53.3419, lon: -6.2860, address: "St James's Gate, Dublin 8, Ireland" },
   "Gravity Bar Guinness": { lat: 53.3425, lon: -6.2864, address: "St James's Gate, Dublin 8, Ireland" },
   "Butlers Café": { lat: 53.3491, lon: -6.2604, address: "Dublin 1, Ireland" },
