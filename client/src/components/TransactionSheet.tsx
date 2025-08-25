@@ -38,6 +38,15 @@ export default function TransactionSheet({ tx, onClose }: { tx: Transaction; onC
   const isNeg = amountAud < 0;
   const amountText = `${isNeg ? '-' : '+'}$${Math.abs(amountAud).toFixed(2)}`;
 
+  // Weekend fee logic: 1% fee on weekends (Saturday/Sunday), displayed in AUD
+  const isWeekend = (() => {
+    const d = new Date(tx.date);
+    const day = d.getDay();
+    return day === 0 || day === 6;
+  })();
+  const weekendFeeAud = isWeekend ? Math.abs(amountAud) * 0.01 : 0;
+  const totalAudAbsWithFee = Math.abs(amountAud) + (isWeekend ? weekendFeeAud : 0);
+
   const time24 = (iso: string) => new Date(iso).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false });
   const dateLong = (iso: string) => new Date(iso).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
 
@@ -153,8 +162,27 @@ export default function TransactionSheet({ tx, onClose }: { tx: Transaction; onC
                 <Row label="Merchant's charge" value={formatAbs(localAmountRaw, localSym)} />
                 <Row label="Exchange rate" value={`$1 = ${localSym}${(FX_AUD_TO_LOCAL[localCurrency] ?? 1).toFixed(4)}`} />
                 <Row label="Exchanged amount" value={formatAbs(amountAud, '$')} />
-                <Row label="Fees" value="No fee" />
-                <Row label="Your total" value={formatAbs(amountAud, '$')} />
+                <Row
+                  label="Fees"
+                  customRight={
+                    isWeekend ? (
+                      <a href="#" className="text-[#60A5FA] text-[16px] hover:underline">{formatAbs(weekendFeeAud, '$')}</a>
+                    ) : (
+                      <div className="text-white text-[16px]">No fee</div>
+                    )
+                  }
+                />
+                <Row label="Your total" value={formatAbs(totalAudAbsWithFee, '$')} />
+              </Block>
+            )}
+
+            {/* Fees block for weekend transactions without FX section */}
+            {!(localCurrency !== 'AUD' && (localCurrency === 'EUR' || localCurrency === 'GBP')) && isWeekend && (
+              <Block>
+                <Row
+                  label="Fees"
+                  customRight={<a href="#" className="text-[#60A5FA] text-[16px] hover:underline">{formatAbs(weekendFeeAud, '$')}</a>}
+                />
               </Block>
             )}
 
