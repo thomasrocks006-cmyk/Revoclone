@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { CreditCard, Download, Utensils, BarChart3, Camera, Plus } from 'lucide-react';
+import { CreditCard, Download, Utensils, BarChart3, Camera, Plus, Info } from 'lucide-react';
 import type { Transaction } from '@/types/transaction';
 import TransactionIcon from '@/components/TransactionIcon';
 
@@ -53,6 +53,8 @@ export default function TransactionSheet({ tx, onClose }: { tx: Transaction; onC
   // Sticky header fade-in state
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const [titleOpacity, setTitleOpacity] = useState(0);
+  const [showFeeSheet, setShowFeeSheet] = useState(false);
+  const [feeAnim, setFeeAnim] = useState(false);
   const headerFadeStart = 20; // px
   const headerFadeEnd = 80; // px
 
@@ -68,7 +70,18 @@ export default function TransactionSheet({ tx, onClose }: { tx: Transaction; onC
     handleScroll();
   }, []);
 
+  // Animate fee sheet on mount
+  useEffect(() => {
+    if (showFeeSheet) {
+      const t = setTimeout(() => setFeeAnim(true), 0);
+      return () => clearTimeout(t);
+    } else {
+      setFeeAnim(false);
+    }
+  }, [showFeeSheet]);
+
   return (
+    <>
     <div className="fixed inset-0 z-50" aria-modal="true" role="dialog">
       <div className="absolute inset-0 bg-black" onClick={onClose} />
       <div className="absolute inset-0 flex items-end">
@@ -166,7 +179,14 @@ export default function TransactionSheet({ tx, onClose }: { tx: Transaction; onC
                   label="Fees"
                   customRight={
                     isWeekend ? (
-                      <a href="#" className="text-[#60A5FA] text-[16px] hover:underline">{formatAbs(weekendFeeAud, '$')}</a>
+                      <button
+                        type="button"
+                        onClick={() => setShowFeeSheet(true)}
+                        className="inline-flex items-center gap-1.5 text-[#60A5FA] hover:underline"
+                      >
+                        <Info size={16} />
+                        <span className="text-[16px]">{formatAbs(weekendFeeAud, '$')}</span>
+                      </button>
                     ) : (
                       <div className="text-white text-[16px]">No fee</div>
                     )
@@ -181,7 +201,16 @@ export default function TransactionSheet({ tx, onClose }: { tx: Transaction; onC
               <Block>
                 <Row
                   label="Fees"
-                  customRight={<a href="#" className="text-[#60A5FA] text-[16px] hover:underline">{formatAbs(weekendFeeAud, '$')}</a>}
+                  customRight={
+                    <button
+                      type="button"
+                      onClick={() => setShowFeeSheet(true)}
+                      className="inline-flex items-center gap-1.5 text-[#60A5FA] hover:underline"
+                    >
+                      <Info size={16} />
+                      <span className="text-[16px]">{formatAbs(weekendFeeAud, '$')}</span>
+                    </button>
+                  }
                 />
               </Block>
             )}
@@ -213,6 +242,37 @@ export default function TransactionSheet({ tx, onClose }: { tx: Transaction; onC
         </div>
       </div>
     </div>
+    {/* Fee breakdown bottom sheet */}
+    {showFeeSheet && (
+      <div className="fixed inset-0 z-[60]" role="dialog" aria-modal="true">
+        <div
+          className={`absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-200 ${feeAnim ? 'opacity-100' : 'opacity-0'}`}
+          onClick={() => setShowFeeSheet(false)}
+        />
+        <div className="absolute inset-x-0 bottom-0 flex items-end">
+          <div
+            className={`w-full max-w-[430px] mx-auto rounded-t-3xl bg-[#1C1C1E] text-white pb-8 pt-3 transition-transform duration-250 ease-out ${feeAnim ? 'translate-y-0' : 'translate-y-full'}`}
+            style={{ boxShadow: '0 -10px 40px rgba(0,0,0,0.8)' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mx-auto w-10 h-1.5 rounded-full bg-white/20 mb-3" />
+            <div className="px-5">
+              <div className="text-[20px] font-semibold text-center mb-4">Fee breakdown</div>
+              <div className="rounded-2xl bg-[#2C2C2E] px-4 py-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-white/80 text-[16px]">
+                    <span>1% weekend exchange</span>
+                    <Info size={16} className="text-white/50" />
+                  </div>
+                  <div className="text-white text-[16px]">{formatAbs(weekendFeeAud, '$')}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )}
+    </>
   );
 }
 
